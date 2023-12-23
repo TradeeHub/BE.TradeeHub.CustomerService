@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BE.TradeeHub.CustomerService.Application", "BE.TradeeHub.CustomerService.Application\BE.TradeeHub.CustomerService.Application.csproj", "{C3869F4A-A1C1-4B47-887A-920817BCF1E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BE.TradeeHub.CustomerService.Domain", "BE.TradeeHub.CustomerService.Domain\BE.TradeeHub.CustomerService.Domain.csproj", "{9888E2D3-C749-4AE5-BE11-26EBEF1FDE61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BE.TradeeHub.CustomerService.Infrastructure", "BE.TradeeHub.CustomerService.Infrastructure\BE.TradeeHub.CustomerService.Infrastructure.csproj", "{20676E7C-E168-40D1-9186-3EE21E43C72D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C3869F4A-A1C1-4B47-887A-920817BCF1E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3869F4A-A1C1-4B47-887A-920817BCF1E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3869F4A-A1C1-4B47-887A-920817BCF1E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3869F4A-A1C1-4B47-887A-920817BCF1E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9888E2D3-C749-4AE5-BE11-26EBEF1FDE61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9888E2D3-C749-4AE5-BE11-26EBEF1FDE61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9888E2D3-C749-4AE5-BE11-26EBEF1FDE61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9888E2D3-C749-4AE5-BE11-26EBEF1FDE61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20676E7C-E168-40D1-9186-3EE21E43C72D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20676E7C-E168-40D1-9186-3EE21E43C72D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20676E7C-E168-40D1-9186-3EE21E43C72D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20676E7C-E168-40D1-9186-3EE21E43C72D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

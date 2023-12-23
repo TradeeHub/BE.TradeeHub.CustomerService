@@ -1,0 +1,9 @@
+@BE.TradeeHub.CustomerService.Application_HostAddress = http://localhost:5269
+
+GET {{BE.TradeeHub.CustomerService.Application_HostAddress}}/weatherforecast/
+Accept: application/json
+###
+
+GET {{BE.TradeeHub.CustomerService.Application_HostAddress}}/glen/
+Accept: application/json
+###

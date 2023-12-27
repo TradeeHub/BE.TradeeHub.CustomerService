@@ -59,7 +59,7 @@ builder.Services
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors("GraphQLCorsPolicy"); // Apply the CORS policy
 
 app.UseRouting();

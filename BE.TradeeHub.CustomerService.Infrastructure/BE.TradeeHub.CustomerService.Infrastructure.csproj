@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="Bogus" Version="35.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
       <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
     </ItemGroup>
 

@@ -17,13 +17,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+      <ProjectReference Include="..\BE.TradeeHub.CustomerService.Infrastructure\BE.TradeeHub.CustomerService.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BE.TradeeHub.CustomerService.Infrastructure\BE.TradeeHub.CustomerService.Infrastructure.csproj" />
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+      <Content Update="appsettings.Docker.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

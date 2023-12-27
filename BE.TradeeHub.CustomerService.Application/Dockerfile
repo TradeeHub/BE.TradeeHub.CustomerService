@@ -1,13 +1,14 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 5270
+EXPOSE 5271
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["BE.TradeeHub.CustomerService.Application/BE.TradeeHub.CustomerService.Application.csproj", "BE.TradeeHub.CustomerService.Application/"]
+COPY ["BE.TradeeHub.CustomerService.Infrastructure/BE.TradeeHub.CustomerService.Infrastructure.csproj", "BE.TradeeHub.CustomerService.Infrastructure/"]
 RUN dotnet restore "BE.TradeeHub.CustomerService.Application/BE.TradeeHub.CustomerService.Application.csproj"
 COPY . .
 WORKDIR "/src/BE.TradeeHub.CustomerService.Application"

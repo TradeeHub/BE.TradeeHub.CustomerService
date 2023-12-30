@@ -9,7 +9,7 @@ namespace BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
 // [QueryType]
 public class Query
 {
-    [UsePaging]
+    [UsePaging(MaxPageSize = 1000)]
     [UseProjection]
     [UseSorting]
     [UseFiltering]

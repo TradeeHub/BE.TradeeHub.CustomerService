@@ -41,7 +41,7 @@ public class CustomerRepository
     public async Task<IEnumerable<CustomerDbObject>> GetCustomersByAddress(string address)
     {
         // Find properties with the given address
-        var propertyFilter = Builders<PropertyDbObject>.Filter.Eq(p => p.PropertyAddress.Address, address);
+        var propertyFilter = Builders<PropertyDbObject>.Filter.Eq(p => p.Property.Address, address);
         var properties = await _dbContext.Properties.Find(propertyFilter).ToListAsync();
     
         // Extract property IDs

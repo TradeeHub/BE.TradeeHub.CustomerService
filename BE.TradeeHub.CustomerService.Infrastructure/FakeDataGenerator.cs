@@ -34,8 +34,9 @@ public abstract class FakeDataGenerator
             .RuleFor(c => c.ModifiedBy, f => Guid.NewGuid())
             .RuleFor(c => c.ReferredByCustomer, f => ObjectId.GenerateNewId()) // Note: This can create deeply nested objects
             .RuleFor(c => c.ReferredByOther, f => f.Lorem.Sentence())
-            .RuleFor(c => c.ReferralFeeFixed, f => f.Random.Double(1, 1000))
-            .RuleFor(c => c.ReferralFeePercentage, f => f.Random.Double(1, 20))
+            .RuleFor(c => c.ReferralFeeFixed, f => f.Random.Decimal(1, 1000))
+            .RuleFor(c => c.ReferralFeePercentage, f => f.Random.Decimal(1, 20))
+            .RuleFor(c => c.CustomerRating, f => f.Random.Decimal(0, 5))
             .RuleFor(c => c.AdditionalNotes, f => f.Lorem.Paragraph());
 
         return customerFaker.Generate(quantity);
@@ -53,8 +54,8 @@ public abstract class FakeDataGenerator
         //Faker for PropertyDbObject
         var propertyFaker = new Faker<PropertyDbObject>()
             .RuleFor(p => p.Id, f => ObjectId.GenerateNewId())
-            .RuleFor(p => p.PropertyAddress, f => addressFaker.Generate())
-            .RuleFor(p => p.BillingAddress, f => f.Random.Bool() ? addressFaker.Generate() : null)
+            .RuleFor(p => p.Property, f => addressFaker.Generate())
+            .RuleFor(p => p.Billing, f => f.Random.Bool() ? addressFaker.Generate() : null)
             .RuleFor(p => p.Location, f => f.Address.Country())
             .RuleFor(p => p.Customers, f => [ObjectId.GenerateNewId()]) // Simplified for the example
             .RuleFor(p => p.Quotes, f => new List<ObjectId> { ObjectId.GenerateNewId() }) // Similarly simplified

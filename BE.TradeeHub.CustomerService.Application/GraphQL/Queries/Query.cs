@@ -52,7 +52,6 @@ public class Query
         ObjectId id, CancellationToken cancellationToken)
     {
         return collection.Find(x => x.Id == id).AsExecutable();
-        // Use cancellationToken if applicable
     }
 
     [UseFirstOrDefault]
@@ -60,6 +59,5 @@ public class Query
         ObjectId id, CancellationToken cancellationToken)
     {
         return collection.Find(x => x.Id == id).AsExecutable();
-        // Use cancellationToken if applicable
     }
 }

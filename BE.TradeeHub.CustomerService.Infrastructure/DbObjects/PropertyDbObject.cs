@@ -7,8 +7,8 @@ public class PropertyDbObject
 {
     [BsonId]
     public ObjectId Id { get; set; }
-    public AddressDbObject PropertyAddress { get; set; } = null!;
-    public AddressDbObject? BillingAddress { get; set; }
+    public AddressDbObject Property { get; set; } = null!;
+    public AddressDbObject? Billing{ get; set; }
     public string? Location { get; set; }
     public List<ObjectId> Customers { get; set; } = null!;
     public List<ObjectId>? Quotes { get; set; }

@@ -23,19 +23,7 @@ public class Query
 
         return collect;
     }
-    public async Task<IEnumerable<CustomerDbObject>>? GetAllCustomers([Service] CustomerRepository customerRepository, CancellationToken cancellationToken)
-    {
-        // Pass cancellationToken to async operations within the repository
-        return await customerRepository.GetAllCustomers();
-    }
-    
-    public async Task<CustomerDbObject>? GetCustomerByIdCustom([Service] CustomerRepository customerRepository,
-        ObjectId customerId, CancellationToken cancellationToken)
-    {
-        // Pass cancellationToken to async operations within the repository
-        return await customerRepository.GetCustomerById(customerId);
-    }
-    
+ 
     [UsePaging]
     [UseProjection]
     [UseSorting]

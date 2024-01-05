@@ -11,6 +11,7 @@ public class CustomerDbObject
     public string? Title { get; set; }
     public string? Name { get; set; }    
     public string? Surname { get; set; }
+    public string FullName => $"{Title} {Name} {Surname}".Trim();
     public string? Alias { get; set; }
     public string Stauts { get; set; }
     public List<EmailDbObject>? Emails { get; set; }
@@ -26,5 +27,5 @@ public class CustomerDbObject
     public decimal? ReferralFeeFixed { get; set; }
     public decimal? ReferralFeePercentage { get; set; }
     public decimal? CustomerRating { get; set; }
-    public string? AdditionalNotes { get; set; } 
+    public List<CommentDbObject>? Comments { get; set; } 
 }

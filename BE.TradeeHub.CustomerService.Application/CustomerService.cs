@@ -11,8 +11,8 @@ public class CustomerService
         _customerRepository = customerRepository;
     }
 
-    // public async Task GenerateFakeCustomers(int quantity, CancellationToken ctx)
-    // {
-    //     await _customerRepository.GenerateFakeData(quantity, ctx);
-    // }
+    public async Task GenerateFakeCustomers(int quantity, CancellationToken ctx)
+    {
+        await _customerRepository.GenerateFakeData(quantity, ctx);
+    }
 }

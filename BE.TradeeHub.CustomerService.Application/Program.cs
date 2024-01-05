@@ -50,6 +50,7 @@ builder.Services
     .AddTypeConverter<ObjectId, string>(o => o.ToString())
     .AddTypeConverter<string, ObjectId>(o => ObjectId.Parse(o))
     .AddQueryType<Query>()
+    .AddMutationType<Mutation>()
     .AddType<CustomerType>()
     .AddType<PropertyType>()
     .AddMongoDbSorting()

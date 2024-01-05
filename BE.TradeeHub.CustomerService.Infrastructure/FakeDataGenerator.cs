@@ -24,7 +24,7 @@ public abstract class FakeDataGenerator
         // Faker for CustomerDbObject
         var customerFaker = new Faker<CustomerDbObject>()
             .RuleFor(c => c.Id, f => ObjectId.GenerateNewId())
-            .RuleFor(c => c.Stauts,
+            .RuleFor(c => c.Status,
                 f => f.PickRandom(Enum.GetNames(typeof(CustomerStatus)))
                     .Replace("_", " ")) // Pick random status and replace underscores with spaces
             .RuleFor(c => c.CustomerReferenceNumber, f => GenerateUniqueCustomerReferenceNumber(f))

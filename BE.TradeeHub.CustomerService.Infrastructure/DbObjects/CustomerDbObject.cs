@@ -13,7 +13,7 @@ public class CustomerDbObject
     public string? Surname { get; set; }
     public string FullName => $"{Title} {Name} {Surname}".Trim();
     public string? Alias { get; set; }
-    public string Stauts { get; set; }
+    public string Status { get; set; }
     public List<EmailDbObject>? Emails { get; set; }
     public List<PhoneNumberDbObject>? PhoneNumbers { get; set; }
     public List<ObjectId>? Properties { get; set; }

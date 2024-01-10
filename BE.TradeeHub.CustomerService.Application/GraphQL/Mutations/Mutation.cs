@@ -1,4 +1,4 @@
-namespace BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
+namespace BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
 
 public class Mutation
 {

@@ -1,5 +1,6 @@
 using BE.TradeeHub.CustomerService.Application;
 using BE.TradeeHub.CustomerService.Application.GraphQL.DataLoader;
+using BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
 using BE.TradeeHub.CustomerService.Application.GraphQL.QueryResolvers;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Types;

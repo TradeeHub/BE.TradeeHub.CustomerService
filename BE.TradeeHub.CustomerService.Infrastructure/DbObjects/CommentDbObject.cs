@@ -3,5 +3,5 @@
 public class CommentDbObject
 {
     public string? Comment { get; set; }
-    public List<string> UploadUrls  { get; set; }
+    public required List<string> UploadUrls  { get; set; }
 }

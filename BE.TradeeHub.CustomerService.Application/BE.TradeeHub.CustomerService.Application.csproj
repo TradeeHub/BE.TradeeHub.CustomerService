@@ -9,9 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AWSSDK.Core" Version="3.7.301.5" />
         <PackageReference Include="HotChocolate.AspNetCore" Version="14.0.0-p.22" />
+        <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="14.0.0-p.23" />
         <PackageReference Include="HotChocolate.AspNetCore.Playground" Version="10.5.5" />
         <PackageReference Include="HotChocolate.Data.MongoDb" Version="14.0.0-p.22" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>

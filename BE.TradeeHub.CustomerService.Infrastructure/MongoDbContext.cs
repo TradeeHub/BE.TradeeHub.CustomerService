@@ -1,5 +1,5 @@
+using BE.TradeeHub.CustomerService.Domain.Interfaces;
 using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
-using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
 namespace BE.TradeeHub.CustomerService.Infrastructure;
@@ -7,20 +7,14 @@ namespace BE.TradeeHub.CustomerService.Infrastructure;
 public class MongoDbContext
 {
     private readonly IMongoDatabase _database;
-
-    public MongoDbContext(IConfiguration configuration)
+    
+    public MongoDbContext(IAppSettings appSettings)
     {
-        var connectionString = configuration.GetSection("MongoDB:ConnectionString").Value;
-        var databaseName = configuration.GetSection("MongoDB:DatabaseName").Value;
-        var client = new MongoClient(connectionString);
-        _database = client.GetDatabase(databaseName);
+        var client = new MongoClient(appSettings.MongoDbConnectionString);
+        _database = client.GetDatabase(appSettings.MongoDbDatabaseName);
     }
     
     public IMongoCollection<CustomerDbObject> Customers => _database.GetCollection<CustomerDbObject>("Customers");
     public IMongoCollection<PropertyDbObject> Properties => _database.GetCollection<PropertyDbObject>("Properties");
-
-    // public IMongoCollection<T> GetCollection<T>(string name)
-    // {
-    //     return _database.GetCollection<T>(name);
-    // }
+    
 }

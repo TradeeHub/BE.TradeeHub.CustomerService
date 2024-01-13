@@ -282,6 +282,12 @@ input UuidOperationFilterInput {
   nlte: UUID
 }
 
+enum ApplyPolicy {
+  BEFORE_RESOLVER
+  AFTER_RESOLVER
+  VALIDATION
+}
+
 enum SortEnumType {
   ASC
   DESC

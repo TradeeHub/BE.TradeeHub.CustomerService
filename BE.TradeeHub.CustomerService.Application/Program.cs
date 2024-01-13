@@ -5,20 +5,25 @@ using BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
 using BE.TradeeHub.CustomerService.Application.GraphQL.QueryResolvers;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Types;
+using BE.TradeeHub.CustomerService.Domain.Interfaces;
 using BE.TradeeHub.CustomerService.Infrastructure;
 using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
 using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
 using HotChocolate.Execution;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
+var appSettings = new AppSettings(builder.Configuration);
+builder.Services.AddSingleton<IAppSettings>(appSettings);
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("GraphQLCorsPolicy", builder =>
     {
-        builder.WithOrigins("http://localhost:3000") // Replace with the client's URL
+        builder.WithOrigins(appSettings.AllowedDomains) // Replace with the client's URL
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -33,6 +38,35 @@ builder.Services.AddScoped<TypeResolver>();
 builder.Services.AddScoped<CustomerPropertiesDataLoader>();
 // builder.Services.AddScoped<AssetNode>();
 
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.Authority = appSettings.ValidIssuer;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = appSettings.ValidIssuer,
+        ValidateLifetime = true,
+        ValidAudience = appSettings.AppClientId,
+        ValidateIssuerSigningKey = true,
+        ValidateAudience = true,
+    };
+    
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.ContainsKey("jwt"))
+            {
+                context.Token = context.Request.Cookies["jwt"];
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
 
 builder.Services.AddSingleton<IMongoCollection<CustomerDbObject>>(serviceProvider =>
 {
@@ -46,8 +80,11 @@ builder.Services.AddSingleton<IMongoCollection<PropertyDbObject>>(serviceProvide
     return mongoDbContext.Properties; // Assuming this is the property name in MongoDbContext for the collection
 });
 
+builder.Services.AddAuthorization();
+
 builder.Services
     .AddGraphQLServer()
+    .AddAuthorization()
     .AddDataLoader<CustomerPropertiesDataLoader>()
     .BindRuntimeType<ObjectId, IdType>()
     .AddTypeConverter<ObjectId, string>(o => o.ToString())
@@ -63,7 +100,7 @@ builder.Services
 
 var app = builder.Build();
 
-if(Debugger.IsAttached)
+if (appSettings.Environment is "Development" or "Docker")
 {
     var resolver = app.Services.GetService<IRequestExecutorResolver>();
     var executor = resolver?.GetRequestExecutorAsync().Result;
@@ -76,11 +113,11 @@ if(Debugger.IsAttached)
             File.WriteAllText(schemaFile, newSchema);
     }
 }
-//app.UseHttpsRedirection();
+
 app.UseCors("GraphQLCorsPolicy"); // Apply the CORS policy
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseRouting();
-
 app.MapGraphQL();
 
 app.Use(async (context, next) =>

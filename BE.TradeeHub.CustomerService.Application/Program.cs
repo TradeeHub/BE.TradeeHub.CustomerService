@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using BE.TradeeHub.CustomerService.Application;
 using BE.TradeeHub.CustomerService.Application.GraphQL.DataLoader;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
@@ -36,7 +35,6 @@ builder.Services.AddScoped<PropertyRepository>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<TypeResolver>();
 builder.Services.AddScoped<CustomerPropertiesDataLoader>();
-// builder.Services.AddScoped<AssetNode>();
 
 builder.Services.AddAuthentication(x =>
 {

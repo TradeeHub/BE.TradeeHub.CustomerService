@@ -1,5 +1,4 @@
 using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
-using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
 using HotChocolate.Data;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -11,8 +10,8 @@ public class Query
 {
     [UsePaging(MaxPageSize = 1000)]
     [UseProjection]
-    [UseSorting]
-    [UseFiltering]
+    [HotChocolate.Types.UseSorting]
+    [HotChocolate.Types.UseFiltering]
     public IExecutable<CustomerDbObject> GetCustomers([Service] IMongoCollection<CustomerDbObject> collection,
         CancellationToken cancellationToken)
     {
@@ -26,8 +25,8 @@ public class Query
  
     [UsePaging]
     [UseProjection]
-    [UseSorting]
-    [UseFiltering]
+    [HotChocolate.Types.UseSorting]
+    [HotChocolate.Types.UseFiltering]
     public static async Task<IExecutable<PropertyDbObject>> GetProperties(
         [Service] IMongoCollection<PropertyDbObject> collection, CancellationToken cancellationToken)
     {

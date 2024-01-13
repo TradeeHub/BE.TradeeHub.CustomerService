@@ -1,1 +1,1 @@
-{"subgraph":"CustomerServiceSubgraph","http":{"baseAddress":"http://localhost:5269/"}}
+{"subgraph":"CustomerServiceSubgraph","http":{"baseAddress":"http://172.18.0.1:5269/"}}

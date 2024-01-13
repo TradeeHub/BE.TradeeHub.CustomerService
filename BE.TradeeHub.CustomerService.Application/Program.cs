@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using BE.TradeeHub.CustomerService.Application;
 using BE.TradeeHub.CustomerService.Application.GraphQL.DataLoader;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
@@ -7,6 +8,7 @@ using BE.TradeeHub.CustomerService.Application.GraphQL.Types;
 using BE.TradeeHub.CustomerService.Infrastructure;
 using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
 using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
+using HotChocolate.Execution;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -61,6 +63,19 @@ builder.Services
 
 var app = builder.Build();
 
+if(Debugger.IsAttached)
+{
+    var resolver = app.Services.GetService<IRequestExecutorResolver>();
+    var executor = resolver?.GetRequestExecutorAsync().Result;
+    if (executor != null)
+    {
+        const string schemaFile = "schema.graphql";
+        var newSchema = executor.Schema.ToString();
+        var oldSchema = File.ReadAllText(schemaFile);
+        if (newSchema != oldSchema)
+            File.WriteAllText(schemaFile, newSchema);
+    }
+}
 //app.UseHttpsRedirection();
 app.UseCors("GraphQLCorsPolicy"); // Apply the CORS policy
 

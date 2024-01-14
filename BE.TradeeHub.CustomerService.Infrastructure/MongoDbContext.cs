@@ -1,5 +1,6 @@
 using BE.TradeeHub.CustomerService.Domain.Interfaces;
 using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BE.TradeeHub.CustomerService.Infrastructure;
@@ -10,7 +11,12 @@ public class MongoDbContext
     
     public MongoDbContext(IAppSettings appSettings)
     {
-        var client = new MongoClient(appSettings.MongoDbConnectionString);
+        var settings = MongoClientSettings.FromConnectionString(appSettings.MongoDbConnectionString);
+        settings.GuidRepresentation = GuidRepresentation.Standard;
+
+        // Now create the MongoClient using the configured settings.
+        var client = new MongoClient(settings);
+        
         _database = client.GetDatabase(appSettings.MongoDbDatabaseName);
     }
     

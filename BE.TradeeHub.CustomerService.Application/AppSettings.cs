@@ -17,8 +17,7 @@ public class AppSettings : IAppSettings
     public AppSettings(IConfiguration config)
     {
         Environment = config["ASPNETCORE_ENVIRONMENT"];
-        var allowedOrigins = config.GetSection("AppSettings:AllowedOrigins").Value;
-        AllowedDomains = allowedOrigins.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        AllowedDomains = config.GetSection("AppSettings:AllowedOrigins").Get<string[]>();
         MongoDbConnectionString = config.GetSection("AppSettings:MongoDB:ConnectionString").Value;
         MongoDbDatabaseName = config.GetSection("AppSettings:MongoDB:DatabaseName").Value;
         AppClientId = config.GetSection("AppSettings:Cognito:AppClientId").Value;

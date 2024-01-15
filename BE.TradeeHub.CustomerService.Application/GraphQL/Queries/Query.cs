@@ -1,4 +1,5 @@
 using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+using HotChocolate.Authorization;
 using HotChocolate.Data;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -8,6 +9,7 @@ namespace BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
 // [QueryType]
 public class Query
 {
+    [Authorize]
     [UsePaging(MaxPageSize = 1000)]
     [UseProjection]
     [HotChocolate.Types.UseSorting]
@@ -34,6 +36,7 @@ public class Query
         return collection.AsExecutable();
     }
 
+    [Authorize]
     [UseFirstOrDefault]
     public IExecutable<CustomerDbObject> GetCustomerById([Service] IMongoCollection<CustomerDbObject> collection,
         ObjectId id, CancellationToken cancellationToken)

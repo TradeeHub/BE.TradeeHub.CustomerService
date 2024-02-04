@@ -32,6 +32,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<CustomerRepository>();
 builder.Services.AddScoped<PropertyRepository>();
+builder.Services.AddScoped<CommentRepository>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<TypeResolver>();
 builder.Services.AddScoped<CustomerPropertiesDataLoader>();
@@ -91,6 +92,7 @@ builder.Services
     .AddMutationType<Mutation>()
     .AddType<CustomerType>()
     .AddType<PropertyType>()
+    .AddType<CommentType>()
     .AddMongoDbSorting()
     .AddMongoDbProjections()
     .AddMongoDbPagingProviders()

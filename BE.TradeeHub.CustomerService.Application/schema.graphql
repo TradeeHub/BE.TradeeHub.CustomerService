@@ -3,9 +3,23 @@ schema {
   mutation: Mutation
 }
 
+type CommentDbObject {
+  id: ID!
+  customerId: ID!
+  userOwnerId: UUID!
+  createdById: UUID!
+  createdAt: DateTime!
+  archived: Boolean!
+  comment: String
+  uploadUrls: [String!]
+  commentType: CommentType!
+}
+
 type CustomerDbObject {
   properties: [PropertyDbObject]
+  comments: [CommentDbObject]
   id: ID!
+  userOwnerId: UUID!
   customerReferenceNumber: String!
   title: String
   name: String
@@ -25,7 +39,6 @@ type CustomerDbObject {
   referralFeeFixed: Decimal
   referralFeePercentage: Decimal
   customerRating: Decimal
-  comments: [ID!]
 }
 
 "A connection to a list of items."
@@ -59,6 +72,8 @@ type LocationDbObject {
 
 type Mutation {
   generateFakeCustomers(quantity: Int!): String!
+  testMutation(quantity: Int!): String!
+  addNewCustomer(request: AddNewCustomerRequestInput!): String!
 }
 
 "Information about pagination in a connection."
@@ -114,9 +129,36 @@ type ViewPortDbObject {
   southwest: LocationDbObject!
 }
 
+input AddNewCustomerRequestInput {
+  title: String
+  name: String
+  surname: String
+  alias: String
+  emails: [EmailRequestInput!]
+  phoneNumbers: [PhoneNumberRequestInput!]
+  property: CustomerPlaceRequestInput
+  isBillingAddress: Boolean!
+  billing: CustomerPlaceRequestInput
+  tags: [String!]
+  reference: ID
+  comment: String
+}
+
 input CustomerDbObjectFilter {
   AND: [CustomerDbObjectFilter!]
   OR: [CustomerDbObjectFilter!]
+  userOwnerId: UUID
+  userOwnerId_not: UUID
+  userOwnerId_in: [UUID!]
+  userOwnerId_not_in: [UUID!]
+  userOwnerId_gt: UUID
+  userOwnerId_not_gt: UUID
+  userOwnerId_gte: UUID
+  userOwnerId_not_gte: UUID
+  userOwnerId_lt: UUID
+  userOwnerId_not_lt: UUID
+  userOwnerId_lte: UUID
+  userOwnerId_not_lte: UUID
   customerReferenceNumber: String
   customerReferenceNumber_not: String
   customerReferenceNumber_contains: String
@@ -306,6 +348,7 @@ input CustomerDbObjectFilter {
 }
 
 input CustomerDbObjectSort {
+  userOwnerId: SortOperationKind
   customerReferenceNumber: SortOperationKind
   title: SortOperationKind
   name: SortOperationKind
@@ -321,6 +364,16 @@ input CustomerDbObjectSort {
   referralFeeFixed: SortOperationKind
   referralFeePercentage: SortOperationKind
   customerRating: SortOperationKind
+}
+
+input CustomerPlaceRequestInput {
+  placeId: String!
+  address: String!
+  country: String!
+  countryCode: String!
+  callingCode: String!
+  location: LocationRequestInput!
+  viewport: ViewportRequestInput!
 }
 
 input EmailDbObjectFilter {
@@ -350,6 +403,12 @@ input EmailDbObjectFilter {
   receiveNotifications_not: Boolean
 }
 
+input EmailRequestInput {
+  emailType: String!
+  email: String!
+  receiveNotifications: Boolean!
+}
+
 input ISingleFilterOfStringFilter {
   AND: [ISingleFilterOfStringFilter!]
   OR: [ISingleFilterOfStringFilter!]
@@ -363,6 +422,11 @@ input ISingleFilterOfStringFilter {
   element_not_ends_with: String
   element_in: [String!]
   element_not_in: [String!]
+}
+
+input LocationRequestInput {
+  lat: Decimal!
+  lng: Decimal!
 }
 
 input ObjectIdFilter {
@@ -457,10 +521,29 @@ input PhoneNumberDbObjectFilter {
   receiveNotifications_not: Boolean
 }
 
+input PhoneNumberRequestInput {
+  phoneNumberType: String!
+  phoneNumber: String!
+  receiveNotifications: Boolean!
+}
+
+input ViewportRequestInput {
+  northeast: LocationRequestInput!
+  southwest: LocationRequestInput!
+}
+
 enum ApplyPolicy {
   BEFORE_RESOLVER
   AFTER_RESOLVER
   VALIDATION
+}
+
+enum CommentType {
+  GENERAL
+  APPOINTMENT
+  QUOTE
+  JOB
+  INVOICE
 }
 
 enum CustomerStatus {

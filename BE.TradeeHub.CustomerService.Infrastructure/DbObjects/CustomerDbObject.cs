@@ -8,6 +8,7 @@ public class CustomerDbObject
 {
     [BsonId]
     public ObjectId Id { get; set; }
+    public Guid UserOwnerId { get; set; }
     public string CustomerReferenceNumber { get; set; }
     public string? Title { get; set; }
     public string? Name { get; set; }    

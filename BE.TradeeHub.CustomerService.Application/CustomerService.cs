@@ -1,3 +1,4 @@
+using BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
 using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
 
 namespace BE.TradeeHub.CustomerService.Application;
@@ -14,5 +15,11 @@ public class CustomerService
     public async Task GenerateFakeCustomers(int quantity, CancellationToken ctx)
     {
         await _customerRepository.GenerateFakeData(quantity, ctx);
+    }
+    
+    public async Task AddNewCustomer(AddNewCustomerRequest request, CancellationToken ctx)
+    {
+        var temp = request;
+        // await _customerRepository.AddNewCustomer(request, ctx);
     }
 }

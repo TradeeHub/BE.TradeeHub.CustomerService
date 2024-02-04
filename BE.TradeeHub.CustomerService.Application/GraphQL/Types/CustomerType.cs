@@ -10,5 +10,9 @@ public class CustomerType : ObjectType<CustomerDbObject>
         descriptor.Field(c => c.Properties)
             .ResolveWith<TypeResolver>(r => r.GetCustomerProperties(default!, default!, default!))
             .Type<ListType<PropertyType>>();
+
+        descriptor.Field(c => c.Comments)
+            .ResolveWith<TypeResolver>(r => r.GetCustomerComments(default!, default!, default!))
+            .Type<ListType<CommentType>>();
     }
 }

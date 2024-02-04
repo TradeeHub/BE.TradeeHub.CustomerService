@@ -41,7 +41,17 @@ public class Query
     public IExecutable<CustomerDbObject> GetCustomerById([Service] IMongoCollection<CustomerDbObject> collection,
         ObjectId id, CancellationToken cancellationToken)
     {
-        return collection.Find(x => x.Id == id).AsExecutable();
+        try
+        {
+            var temp =  collection.Find(x => x.Id == id).AsExecutable();
+
+            return temp;
+        }
+        catch (Exception e)
+        {
+            var tmep = e.Message;
+            throw;
+        }
     }
 
     [UseFirstOrDefault]

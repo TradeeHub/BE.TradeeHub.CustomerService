@@ -1,6 +1,7 @@
 using BE.TradeeHub.CustomerService.Application.GraphQL.DataLoader;
 using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
 using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
+using MongoDB.Bson;
 
 namespace BE.TradeeHub.CustomerService.Application.GraphQL.QueryResolvers;
 
@@ -13,6 +14,17 @@ public class TypeResolver
         if (customer.Properties != null)
         {
             return await customerPropertiesLoader.LoadAsync(customer.Id, ctx);
+        }
+        
+        return null;
+    }
+    
+    public async Task<IEnumerable<CommentDbObject>?> GetCustomerComments([Parent] CustomerDbObject customer,[Service] CustomerCommentsDataLoader customerCommentsDataLoader, 
+        CancellationToken ctx)
+    {
+        if (customer.Comments != null)
+        {
+            return await customerCommentsDataLoader.LoadAsync(customer.Id, ctx);
         }
         
         return null;

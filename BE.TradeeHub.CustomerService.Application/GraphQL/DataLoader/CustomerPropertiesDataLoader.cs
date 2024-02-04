@@ -1,20 +1,21 @@
-using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+using BE.TradeeHub.CustomerService.Domain.Entities;
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
 using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
 using MongoDB.Bson;
 
 namespace BE.TradeeHub.CustomerService.Application.GraphQL.DataLoader;
 
-public class CustomerPropertiesDataLoader : GroupedDataLoader<ObjectId, PropertyDbObject>
+public class CustomerPropertiesDataLoader : GroupedDataLoader<ObjectId, PropertyEntity>
 {
-    private readonly PropertyRepository _propertyRepository;
+    private readonly IPropertyRepository _propertyRepository;
 
-    public CustomerPropertiesDataLoader(IBatchScheduler batchScheduler, PropertyRepository propertyRepository, DataLoaderOptions? options = null)
+    public CustomerPropertiesDataLoader(IBatchScheduler batchScheduler, IPropertyRepository propertyRepository, DataLoaderOptions? options = null)
         : base(batchScheduler, options)
     {
         _propertyRepository = propertyRepository;
     }
 
-    protected override async Task<ILookup<ObjectId, PropertyDbObject>> LoadGroupedBatchAsync(IReadOnlyList<ObjectId> customerIds, CancellationToken cancellationToken)
+    protected override async Task<ILookup<ObjectId, PropertyEntity>> LoadGroupedBatchAsync(IReadOnlyList<ObjectId> customerIds, CancellationToken cancellationToken)
     {
         // Fetch all properties that are related to the provided customer IDs
         var properties = await _propertyRepository.GetPropertiesByCustomerIds(customerIds, cancellationToken);

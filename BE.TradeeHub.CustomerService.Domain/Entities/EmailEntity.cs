@@ -1,6 +1,6 @@
-    namespace BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+    namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-    public class EmailDbObject
+    public class EmailEntity
     {
         public string EmailType { get; set; } = null!;
         public string Email { get; set; } = null!;

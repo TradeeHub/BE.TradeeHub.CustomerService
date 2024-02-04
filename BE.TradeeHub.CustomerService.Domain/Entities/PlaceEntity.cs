@@ -1,12 +1,12 @@
-﻿namespace BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+﻿namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-public class PlaceDbObject
+public class PlaceEntity
 {
     public string PlaceId { get; set; }
     public string Address { get; set; }
     public string Country { get; set; }
     public string CountryCode { get; set; }
     public string CallingCode { get; set; }
-    public LocationDbObject Location { get; set; }
-    public ViewPortDbObject Viewport { get; set; }
+    public LocationEntity Location { get; set; }
+    public ViewPortEntity Viewport { get; set; }
 }

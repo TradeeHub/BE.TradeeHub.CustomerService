@@ -1,25 +1,27 @@
+using BE.TradeeHub.CustomerService.Application.Extensions;
+using BE.TradeeHub.CustomerService.Application.Interfaces;
 using BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
-using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
+using BE.TradeeHub.CustomerService.Domain.Entities;
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
 
 namespace BE.TradeeHub.CustomerService.Application;
 
-public class CustomerService
+public class CustomerService : ICustomerService
 {
-    private readonly CustomerRepository _customerRepository;
+    private readonly ICustomerRepository _customerRepository;
 
-    public CustomerService(CustomerRepository customerRepository)
+    public CustomerService(ICustomerRepository customerRepository)
     {
         _customerRepository = customerRepository;
     }
 
-    public async Task GenerateFakeCustomers(int quantity, CancellationToken ctx)
+    public async Task AddNewCustomer(UserContext userContext, AddNewCustomerRequest request, CancellationToken ctx)
     {
-        await _customerRepository.GenerateFakeData(quantity, ctx);
-    }
-    
-    public async Task AddNewCustomer(AddNewCustomerRequest request, CancellationToken ctx)
-    {
+        var customerEntity = request.ToCustomer(userContext.UserId, userContext.UserId);
+        var propertyEntity = request.ToProperty(userContext.UserId, userContext.UserId);
+        var commentEntity = request.ToComment(userContext.UserId, userContext.UserId);
         var temp = request;
-        // await _customerRepository.AddNewCustomer(request, ctx);
+        await _customerRepository.AddNewCustomerAsync(customerEntity, new List<PropertyEntity>() { propertyEntity },
+            new List<CommentEntity>() { commentEntity }, ctx);
     }
 }

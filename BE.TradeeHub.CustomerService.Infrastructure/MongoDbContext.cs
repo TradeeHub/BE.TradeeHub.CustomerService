@@ -1,5 +1,5 @@
+using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Interfaces;
-using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -8,38 +8,41 @@ namespace BE.TradeeHub.CustomerService.Infrastructure;
 public class MongoDbContext
 {
     private readonly IMongoDatabase _database;
-    
+    private readonly MongoClient _client; // Store the MongoClient instance
+
     public MongoDbContext(IAppSettings appSettings)
     {
         var settings = MongoClientSettings.FromConnectionString(appSettings.MongoDbConnectionString);
         settings.GuidRepresentation = GuidRepresentation.Standard;
 
         // Now create the MongoClient using the configured settings.
-        var client = new MongoClient(settings);
+        _client = new MongoClient(settings);
         
-        _database = client.GetDatabase(appSettings.MongoDbDatabaseName);
+        _database = _client.GetDatabase(appSettings.MongoDbDatabaseName);
         // CreateIndexes();
     }
     
-    public IMongoCollection<CustomerDbObject> Customers => _database.GetCollection<CustomerDbObject>("Customers");
-    public IMongoCollection<PropertyDbObject> Properties => _database.GetCollection<PropertyDbObject>("Properties");
-    public IMongoCollection<CommentDbObject> Comments => _database.GetCollection<CommentDbObject>("Comments");
+    public IMongoClient Client => _client; // Expose the MongoClient for external use
+    public IMongoCollection<CustomerEntity> Customers => _database.GetCollection<CustomerEntity>("Customers");
+    public IMongoCollection<CustomerReferenceNumberEntity> CustomerReferenceNumber => _database.GetCollection<CustomerReferenceNumberEntity>("Crns");
+    public IMongoCollection<PropertyEntity> Properties => _database.GetCollection<PropertyEntity>("Properties");
+    public IMongoCollection<CommentEntity> Comments => _database.GetCollection<CommentEntity>("Comments");
     
     private void CreateIndexes()
     {
-        var customersCollection = _database.GetCollection<CustomerDbObject>("Customers");
-        var customerIndexModel = new CreateIndexModel<CustomerDbObject>(
-            Builders<CustomerDbObject>.IndexKeys.Ascending(customer => customer.UserOwnerId)); // Specify the field you want to index
+        var customersCollection = _database.GetCollection<CustomerEntity>("Customers");
+        var customerIndexModel = new CreateIndexModel<CustomerEntity>(
+            Builders<CustomerEntity>.IndexKeys.Ascending(customer => customer.UserOwnerId)); // Specify the field you want to index
         customersCollection.Indexes.CreateOne(customerIndexModel);
 
-        var propertiesCollection = _database.GetCollection<PropertyDbObject>("Properties");
-        var propertyIndexModel = new CreateIndexModel<PropertyDbObject>(
-            Builders<PropertyDbObject>.IndexKeys.Ascending(property => property.UserOwnerId)); // Specify the field you want to index
+        var propertiesCollection = _database.GetCollection<PropertyEntity>("Properties");
+        var propertyIndexModel = new CreateIndexModel<PropertyEntity>(
+            Builders<PropertyEntity>.IndexKeys.Ascending(property => property.UserOwnerId)); // Specify the field you want to index
         propertiesCollection.Indexes.CreateOne(propertyIndexModel);
         
-        var commentsCollection = _database.GetCollection<CommentDbObject>("Comments");
-        var commentIndexModel = new CreateIndexModel<CommentDbObject>(
-            Builders<CommentDbObject>.IndexKeys
+        var commentsCollection = _database.GetCollection<CommentEntity>("Comments");
+        var commentIndexModel = new CreateIndexModel<CommentEntity>(
+            Builders<CommentEntity>.IndexKeys
                 .Ascending(comment => comment.CustomerId)
                 .Ascending(comment => comment.UserOwnerId));
 

@@ -1,10 +1,11 @@
-﻿using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+﻿using BE.TradeeHub.CustomerService.Domain.Entities;
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BE.TradeeHub.CustomerService.Infrastructure.Repositories;
 
-public class CommentRepository
+public class CommentRepository : ICommentRepository
 {
     private readonly MongoDbContext _dbContext;
 
@@ -13,10 +14,10 @@ public class CommentRepository
         _dbContext = dbContext;
     }
     
-    public async Task<IEnumerable<CommentDbObject>?> GetCommentsByCustomerId(IEnumerable<ObjectId> customerIds, CancellationToken cancellationToken)
+    public async Task<IEnumerable<CommentEntity>?> GetCommentsByCustomerId(IEnumerable<ObjectId> customerIds, CancellationToken cancellationToken)
     {
         // Assuming CustomerId is the correct field to filter on based on your class definition
-        var filter = Builders<CommentDbObject>.Filter.In(comment => comment.CustomerId, customerIds);
+        var filter = Builders<CommentEntity>.Filter.In(comment => comment.CustomerId, customerIds);
         var cursor = await _dbContext.Comments.FindAsync(filter, cancellationToken: cancellationToken);
         var comments = await cursor.ToListAsync(cancellationToken);
 
@@ -24,9 +25,9 @@ public class CommentRepository
     }
 
     
-    public async Task<IEnumerable<CommentDbObject>?> GetCommentsByIds(IEnumerable<ObjectId> commentIds, CancellationToken ctx)
+    public async Task<IEnumerable<CommentEntity>?> GetCommentsByIds(IEnumerable<ObjectId> commentIds, CancellationToken ctx)
     {
-        var filter = Builders<CommentDbObject>.Filter.In(c => c.Id, commentIds);
+        var filter = Builders<CommentEntity>.Filter.In(c => c.Id, commentIds);
         var cursor = await _dbContext.Comments.FindAsync(filter, cancellationToken: ctx);
         var comments=  await cursor.ToListAsync(ctx);
 

@@ -1,6 +1,6 @@
-namespace BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-public class PhoneNumberDbObject
+public class PhoneNumberEntity
 {
     public string PhoneNumberType { get; set; } = null!;
     public string PhoneNumber { get; set; } = null!;

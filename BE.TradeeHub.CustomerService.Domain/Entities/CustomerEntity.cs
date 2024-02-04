@@ -2,9 +2,9 @@ using BE.TradeeHub.CustomerService.Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-public class CustomerDbObject
+public class CustomerEntity
 {
     [BsonId]
     public ObjectId Id { get; set; }
@@ -16,8 +16,8 @@ public class CustomerDbObject
     public string FullName => $"{Title} {Name} {Surname}".Trim();
     public string? Alias { get; set; }
     public CustomerStatus Status { get; set; }
-    public List<EmailDbObject>? Emails { get; set; }
-    public List<PhoneNumberDbObject>? PhoneNumbers { get; set; }
+    public List<EmailEntity>? Emails { get; set; }
+    public List<PhoneNumberEntity>? PhoneNumbers { get; set; }
     public List<ObjectId>? Properties { get; set; }
     public HashSet<string>? Tags { get; set; }
     public DateTime CreatedAt { get; set; }

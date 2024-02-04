@@ -2,9 +2,9 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-public class CommentDbObject
+public class CommentEntity
 {
     [BsonId]
     public ObjectId Id { get; set; }
@@ -14,6 +14,6 @@ public class CommentDbObject
     public DateTime CreatedAt { get; set; }
     public bool Archived {get; set; }
     public string? Comment { get; set; }
-    public required List<string>? UploadUrls  { get; set; }
+    public List<string> UploadUrls { get; set; } = new List<string>();
     public CommentType CommentType { get; set; }
 }

@@ -1,11 +1,11 @@
-using System.Diagnostics;
-using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+using BE.TradeeHub.CustomerService.Domain.Entities;
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BE.TradeeHub.CustomerService.Infrastructure.Repositories;
 
-public class CustomerRepository
+public class CustomerRepository : ICustomerRepository
 {
     private readonly MongoDbContext _dbContext;
 
@@ -13,81 +13,140 @@ public class CustomerRepository
     {
         _dbContext = dbContext;
     }
-    
-    public async Task<CustomerDbObject> GetCustomerById(ObjectId customerId)
+
+    public async Task<CustomerEntity> GetCustomerByIdAsync(ObjectId customerId)
     {
-        var filter = Builders<CustomerDbObject>.Filter.Eq(c => c.Id, customerId);
-        var customer =  await _dbContext.Customers.Find(filter).FirstOrDefaultAsync();
+        var filter = Builders<CustomerEntity>.Filter.Eq(c => c.Id, customerId);
+        var customer = await _dbContext.Customers.Find(filter).FirstOrDefaultAsync();
         return customer;
     }
-    
-    public async Task<IEnumerable<CustomerDbObject>> GetAllCustomers()
+
+    public async Task<IEnumerable<CustomerEntity>> GetAllCustomersAsync()
     {
         return await _dbContext.Customers.Find(_ => true).ToListAsync();
     }
 
-    public async Task<IEnumerable<CustomerDbObject>> GetCustomersByPropertyId(ObjectId propertyId)
+    public async Task<IEnumerable<CustomerEntity>> GetCustomersByPropertyIdAsync(ObjectId propertyId)
     {
-        var filter = Builders<CustomerDbObject>.Filter.AnyEq(c => c.Properties, propertyId);
-        return await _dbContext.Customers.Find(filter).ToListAsync();
-    }
-    
-    public async Task<IEnumerable<CustomerDbObject>> GetCustomersByName(string name)
-    {
-        var filter = Builders<CustomerDbObject>.Filter.Eq(c => c.Name, name);
+        var filter = Builders<CustomerEntity>.Filter.AnyEq(c => c.Properties, propertyId);
         return await _dbContext.Customers.Find(filter).ToListAsync();
     }
 
-    public async Task<IEnumerable<CustomerDbObject>> GetCustomersByAddress(string address)
+    public async Task<IEnumerable<CustomerEntity>> GetCustomersByNameAsync(string name)
+    {
+        var filter = Builders<CustomerEntity>.Filter.Eq(c => c.Name, name);
+        return await _dbContext.Customers.Find(filter).ToListAsync();
+    }
+
+    public async Task<IEnumerable<CustomerEntity>> GetCustomersByAddressAsync(string address)
     {
         // Find properties with the given address
-        var propertyFilter = Builders<PropertyDbObject>.Filter.Eq(p => p.Property.Address, address);
+        var propertyFilter = Builders<PropertyEntity>.Filter.Eq(p => p.Property.Address, address);
         var properties = await _dbContext.Properties.Find(propertyFilter).ToListAsync();
-    
+
         // Extract property IDs
         var propertyIds = properties.Select(p => p.Id);
-    
+
         // Find customers linked to these properties
-        var customerFilter = Builders<CustomerDbObject>.Filter.AnyIn(c => c.Properties, propertyIds);
+        var customerFilter = Builders<CustomerEntity>.Filter.AnyIn(c => c.Properties, propertyIds);
         return await _dbContext.Customers.Find(customerFilter).ToListAsync();
     }
-    
-    public async Task<IEnumerable<CustomerDbObject>> GetCustomersByIds(IEnumerable<ObjectId> customerIds)
+
+    public async Task<IEnumerable<CustomerEntity>> GetCustomersByIdsAsync(IEnumerable<ObjectId> customerIds)
     {
         // Build a filter to select customers with IDs that are in the customerIds list
-        var filter = Builders<CustomerDbObject>.Filter.In(c => c.Id, customerIds);
+        var filter = Builders<CustomerEntity>.Filter.In(c => c.Id, customerIds);
 
         // Execute the query using the Customers collection from MongoDbContext
-        var cursor =  await _dbContext.Customers.FindAsync(filter);
-        
+        var cursor = await _dbContext.Customers.FindAsync(filter);
+
         return await cursor.ToListAsync();
     }
-    
-    public async Task GenerateFakeData(int quantity, CancellationToken ctx)
+
+    public async Task AddNewCustomerAsync(CustomerEntity customer, IEnumerable<PropertyEntity> properties,
+        IEnumerable<CommentEntity> comments, CancellationToken ctx)
     {
-        var sw1 = new Stopwatch();
-        var sw2 = new Stopwatch();
-        
-        sw1.Start();
-        var fakeCustomers = FakeDataGenerator.CreateFakeCustomers(quantity);
-        var random = new Random();
-    
-        var fakeProperties = fakeCustomers.AsParallel().SelectMany(customer => 
+        using var session = await _dbContext.Client.StartSessionAsync(cancellationToken: ctx);
+
+        session.StartTransaction();
+
+        try
         {
-            var randomQuantity = random.Next(1, 5);
-            var customerFakeProperties = FakeDataGenerator.CreateFakeProperties(randomQuantity);
-    
-            customer.Properties = customerFakeProperties.Select(x => x.Id).ToList();
-            customerFakeProperties.ForEach(fakeProp => fakeProp.Customers = [customer.Id]);
-    
-            return customerFakeProperties;
-        }).ToList();
-        
-        sw1.Stop();
-        sw2.Start();
-        await _dbContext.Customers.InsertManyAsync(fakeCustomers, cancellationToken: ctx);
-        await _dbContext.Properties.InsertManyAsync(fakeProperties, cancellationToken: ctx);
-        sw2.Stop();
-        Console.WriteLine($"Generating Fake Data Time: {sw1.Elapsed}, Saving Fake Data Time: {sw2.Elapsed}, Fake Customers Created: {fakeCustomers.Count}, Fake Properties Created: {fakeProperties.Count}");
+            // Generate unique CRN for the customer
+            customer.CustomerReferenceNumber = await GenerateUniqueCustomerReferenceNumber(customer.UserOwnerId, session, ctx);
+
+            // Initialize Properties and Comments lists if necessary
+            customer.Properties = properties.Any() ? new List<ObjectId>() : null;
+            customer.Comments = comments.Any() ? new List<ObjectId>() : null;
+
+            // Add customer first to get its ID
+            await _dbContext.Customers.InsertOneAsync(session, customer, cancellationToken: ctx);
+
+            // Handle Properties in a single operation if there are any
+            if (properties.Any())
+            {
+                await _dbContext.Properties.InsertManyAsync(session, properties, cancellationToken: ctx);
+                // Update customer.Properties with the inserted IDs
+                customer.Properties.AddRange(properties.Select(p => p.Id));
+            }
+
+            // Handle Comments in a single operation if there are any, making sure to link them to the customer
+            if (comments.Any())
+            {
+                // Link comments to the customer by setting the CustomerId before insertion
+                foreach (var comment in comments)
+                {
+                    comment.CustomerId = customer.Id;
+                }
+
+                await _dbContext.Comments.InsertManyAsync(session, comments, cancellationToken: ctx);
+                // Update customer.Comments with the inserted IDs
+                customer.Comments.AddRange(comments.Select(c => c.Id));
+            }
+
+            // Update the customer with the new lists of property and comment IDs if any were added
+            if (customer.Properties?.Any() == true || customer.Comments?.Any() == true)
+            {
+                var updateDefinition = Builders<CustomerEntity>.Update
+                    .Set(c => c.Properties, customer.Properties)
+                    .Set(c => c.Comments, customer.Comments);
+                await _dbContext.Customers.UpdateOneAsync(session, c => c.Id == customer.Id, updateDefinition,
+                    cancellationToken: ctx);
+            }
+
+            await session.CommitTransactionAsync(ctx);
+        }
+        catch (Exception ex)
+        {
+            await session.AbortTransactionAsync(ctx);
+            throw;
+        }
+    }
+
+
+    private async Task<string> GenerateUniqueCustomerReferenceNumber(Guid userOwnerId, IClientSessionHandle session,
+        CancellationToken ctx)
+    {
+        // Use _dbContext to access the CustomerReferenceNumber collection correctly
+        var customerRefNumCollection = _dbContext.CustomerReferenceNumber;
+
+        // Define the filter to find the document for the specific UserOwnerId
+        var filter = Builders<CustomerReferenceNumberEntity>.Filter.Eq(doc => doc.UserOwnerId, userOwnerId);
+
+        // Define the update operation to increment the counter
+        var update = Builders<CustomerReferenceNumberEntity>.Update.Inc(doc => doc.Counter, 1);
+
+        // Specify that the operation should return the document after the update and create a new document if one doesn't exist
+        var options = new FindOneAndUpdateOptions<CustomerReferenceNumberEntity, CustomerReferenceNumberEntity>
+        {
+            ReturnDocument = ReturnDocument.After,
+            IsUpsert = true,
+        };
+
+        // Perform the find and update operation atomically within the session
+        var result = await customerRefNumCollection.FindOneAndUpdateAsync(session, filter, update, options, ctx);
+
+        // Construct the CRN using the updated counter value
+        return $"CRN-{result.Counter}";
     }
 }

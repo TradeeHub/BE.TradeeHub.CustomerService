@@ -1,15 +1,16 @@
-using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+using BE.TradeeHub.CustomerService.Domain.Entities;
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
 using MongoDB.Bson;
 using BE.TradeeHub.CustomerService.Infrastructure;
 using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
 using MongoDB.Driver;
 
-[ExtendObjectType<PropertyDbObject>]
+[ExtendObjectType<PropertyEntity>]
 public static class PropertyNode
 {
     [DataLoader]
-    internal static async Task<ILookup<ObjectId, PropertyDbObject>>
-        GetPropertyByCustomerIdAsync(IReadOnlyList<ObjectId> customerIds, [Service] PropertyRepository propertyRepository, CancellationToken ctx)
+    internal static async Task<ILookup<ObjectId, PropertyEntity>>
+        GetPropertyByCustomerIdAsync(IReadOnlyList<ObjectId> customerIds, [Service] IPropertyRepository propertyRepository, CancellationToken ctx)
     {
         var properties = await propertyRepository.GetPropertiesByCustomerIds(customerIds, ctx);
 

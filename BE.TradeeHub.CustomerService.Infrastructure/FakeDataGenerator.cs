@@ -1,5 +1,5 @@
+using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Enums;
-using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
 using Bogus;
 using MongoDB.Bson;
 
@@ -9,15 +9,15 @@ public abstract class FakeDataGenerator
 {
     private static readonly HashSet<string> generatedCRNs = new HashSet<string>();
 
-    public static List<CustomerDbObject> CreateFakeCustomers(int quantity)
+    public static List<CustomerEntity> CreateFakeCustomers(int quantity)
     {
         // Faker for EmailDbObject
-        var emailFaker = new Faker<EmailDbObject>()
+        var emailFaker = new Faker<EmailEntity>()
             .RuleFor(e => e.Email, f => f.Internet.Email())
             .RuleFor(e => e.EmailType, f => f.Lorem.Word());
 
         // Faker for PhoneNumberDbObject
-        var phoneFaker = new Faker<PhoneNumberDbObject>()
+        var phoneFaker = new Faker<PhoneNumberEntity>()
             .RuleFor(p => p.PhoneNumber, f => f.Phone.PhoneNumber())
             .RuleFor(p => p.PhoneNumberType, f => f.Lorem.Word());
         
@@ -62,15 +62,15 @@ public abstract class FakeDataGenerator
         return crn;
     }
     
-    private static List<CommentDbObject> GenerateFakeComments(Faker faker, int maxComments)
+    private static List<CommentEntity> GenerateFakeComments(Faker faker, int maxComments)
     {
-        var commentFaker = new Faker<CommentDbObject>()
+        var commentFaker = new Faker<CommentEntity>()
             .RuleFor(c => c.Comment, f => f.Lorem.Sentence())
             .RuleFor(c => c.UploadUrls, f => f.Make(f.Random.Int(1, 5), () => f.Image.PicsumUrl()));
 
         return commentFaker.Generate(faker.Random.Int(1, maxComments));
     }
-    public static List<PropertyDbObject> CreateFakeProperties(int quantity)
+    public static List<PropertyEntity> CreateFakeProperties(int quantity)
     {
         // // Faker for AddressDbObject
         // var addressFaker = new Faker<AddressDbObject>()

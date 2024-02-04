@@ -1,14 +1,14 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-public class PropertyDbObject
+public class PropertyEntity
 {
     [BsonId] public ObjectId Id { get; set; }
     public Guid UserOwnerId { get; set; }
-    public PlaceDbObject Property { get; set; } = null!;
-    public PlaceDbObject? Billing { get; set; }
+    public PlaceEntity Property { get; set; } = null!;
+    public PlaceEntity? Billing { get; set; }
     public List<ObjectId> Customers { get; set; } = null!;
     public List<ObjectId>? Quotes { get; set; }
     public List<ObjectId>? Jobs { get; set; }

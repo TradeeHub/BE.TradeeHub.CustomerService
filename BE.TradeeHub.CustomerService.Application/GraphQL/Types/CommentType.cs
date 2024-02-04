@@ -1,10 +1,10 @@
-﻿using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+﻿using BE.TradeeHub.CustomerService.Domain.Entities;
 
 namespace BE.TradeeHub.CustomerService.Application.GraphQL.Types;
 
-public class CommentType : ObjectType<CommentDbObject>
+public class CommentType : ObjectType<CommentEntity>
 {
-    protected override void Configure(IObjectTypeDescriptor<CommentDbObject> descriptor)
+    protected override void Configure(IObjectTypeDescriptor<CommentEntity> descriptor)
     {
     }
 }

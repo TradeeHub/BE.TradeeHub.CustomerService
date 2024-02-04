@@ -1,6 +1,6 @@
-namespace BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-public class AddressDbObject
+public class AddressEntity
 {
     public string? Address { get; set; }
     public string? City { get; set; }

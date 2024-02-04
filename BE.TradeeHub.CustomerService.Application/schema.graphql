@@ -3,7 +3,7 @@ schema {
   mutation: Mutation
 }
 
-type CommentDbObject {
+type CommentEntity {
   id: ID!
   customerId: ID!
   userOwnerId: UUID!
@@ -11,13 +11,13 @@ type CommentDbObject {
   createdAt: DateTime!
   archived: Boolean!
   comment: String
-  uploadUrls: [String!]
+  uploadUrls: [String!]!
   commentType: CommentType!
 }
 
-type CustomerDbObject {
-  properties: [PropertyDbObject]
-  comments: [CommentDbObject]
+type CustomerEntity {
+  properties: [PropertyEntity]
+  comments: [CommentEntity]
   id: ID!
   userOwnerId: UUID!
   customerReferenceNumber: String!
@@ -27,8 +27,8 @@ type CustomerDbObject {
   fullName: String!
   alias: String
   status: CustomerStatus!
-  emails: [EmailDbObject!]
-  phoneNumbers: [PhoneNumberDbObject!]
+  emails: [EmailEntity!]
+  phoneNumbers: [PhoneNumberEntity!]
   tags: [String!]
   createdAt: DateTime!
   createdBy: UUID!
@@ -48,7 +48,7 @@ type CustomersConnection {
   "A list of edges."
   edges: [CustomersEdge!]
   "A flattened list of the nodes."
-  nodes: [CustomerDbObject!]
+  nodes: [CustomerEntity!]
 }
 
 "An edge in a connection."
@@ -56,23 +56,21 @@ type CustomersEdge {
   "A cursor for use in pagination."
   cursor: String!
   "The item at the end of the edge."
-  node: CustomerDbObject!
+  node: CustomerEntity!
 }
 
-type EmailDbObject {
+type EmailEntity {
   emailType: String!
   email: String!
   receiveNotifications: Boolean!
 }
 
-type LocationDbObject {
+type LocationEntity {
   lat: Decimal!
   lng: Decimal!
 }
 
 type Mutation {
-  generateFakeCustomers(quantity: Int!): String!
-  testMutation(quantity: Int!): String!
   addNewCustomer(request: AddNewCustomerRequestInput!): String!
 }
 
@@ -88,29 +86,29 @@ type PageInfo {
   endCursor: String
 }
 
-type PhoneNumberDbObject {
+type PhoneNumberEntity {
   phoneNumberType: String!
   phoneNumber: String!
   receiveNotifications: Boolean!
 }
 
-type PlaceDbObject {
+type PlaceEntity {
   placeId: String!
   address: String!
   country: String!
   countryCode: String!
   callingCode: String!
-  location: LocationDbObject!
-  viewport: ViewPortDbObject!
+  location: LocationEntity!
+  viewport: ViewPortEntity!
 }
 
-type PropertyDbObject {
+type PropertyEntity {
   "The customers associated with this property."
-  customers: [CustomerDbObject]
+  customers: [CustomerEntity]
   id: ID!
   userOwnerId: UUID!
-  property: PlaceDbObject!
-  billing: PlaceDbObject
+  property: PlaceEntity!
+  billing: PlaceEntity
   quotes: [ID!]
   jobs: [ID!]
   createdAt: DateTime!
@@ -120,13 +118,13 @@ type PropertyDbObject {
 }
 
 type Query {
-  customers("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String order_by: CustomerDbObjectSort where: CustomerDbObjectFilter): CustomersConnection @authorize
-  customerById(id: ID!): CustomerDbObject @authorize
+  customers("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String order_by: CustomerEntitySort where: CustomerEntityFilter): CustomersConnection @authorize
+  customerById(id: ID!): CustomerEntity @authorize
 }
 
-type ViewPortDbObject {
-  northeast: LocationDbObject!
-  southwest: LocationDbObject!
+type ViewPortEntity {
+  northeast: LocationEntity!
+  southwest: LocationEntity!
 }
 
 input AddNewCustomerRequestInput {
@@ -144,9 +142,9 @@ input AddNewCustomerRequestInput {
   comment: String
 }
 
-input CustomerDbObjectFilter {
-  AND: [CustomerDbObjectFilter!]
-  OR: [CustomerDbObjectFilter!]
+input CustomerEntityFilter {
+  AND: [CustomerEntityFilter!]
+  OR: [CustomerEntityFilter!]
   userOwnerId: UUID
   userOwnerId_not: UUID
   userOwnerId_in: [UUID!]
@@ -231,13 +229,13 @@ input CustomerDbObjectFilter {
   status_not_lt: CustomerStatus
   status_lte: CustomerStatus
   status_not_lte: CustomerStatus
-  emails_some: EmailDbObjectFilter
-  emails_none: EmailDbObjectFilter
-  emails_all: EmailDbObjectFilter
+  emails_some: EmailEntityFilter
+  emails_none: EmailEntityFilter
+  emails_all: EmailEntityFilter
   emails_any: Boolean
-  phoneNumbers_some: PhoneNumberDbObjectFilter
-  phoneNumbers_none: PhoneNumberDbObjectFilter
-  phoneNumbers_all: PhoneNumberDbObjectFilter
+  phoneNumbers_some: PhoneNumberEntityFilter
+  phoneNumbers_none: PhoneNumberEntityFilter
+  phoneNumbers_all: PhoneNumberEntityFilter
   phoneNumbers_any: Boolean
   properties_some: ObjectIdFilter
   properties_none: ObjectIdFilter
@@ -347,7 +345,7 @@ input CustomerDbObjectFilter {
   comments_any: Boolean
 }
 
-input CustomerDbObjectSort {
+input CustomerEntitySort {
   userOwnerId: SortOperationKind
   customerReferenceNumber: SortOperationKind
   title: SortOperationKind
@@ -376,9 +374,9 @@ input CustomerPlaceRequestInput {
   viewport: ViewportRequestInput!
 }
 
-input EmailDbObjectFilter {
-  AND: [EmailDbObjectFilter!]
-  OR: [EmailDbObjectFilter!]
+input EmailEntityFilter {
+  AND: [EmailEntityFilter!]
+  OR: [EmailEntityFilter!]
   emailType: String
   emailType_not: String
   emailType_contains: String
@@ -494,9 +492,9 @@ input ObjectIdFilter {
   creationTime_not_lte: DateTime
 }
 
-input PhoneNumberDbObjectFilter {
-  AND: [PhoneNumberDbObjectFilter!]
-  OR: [PhoneNumberDbObjectFilter!]
+input PhoneNumberEntityFilter {
+  AND: [PhoneNumberEntityFilter!]
+  OR: [PhoneNumberEntityFilter!]
   phoneNumberType: String
   phoneNumberType_not: String
   phoneNumberType_contains: String

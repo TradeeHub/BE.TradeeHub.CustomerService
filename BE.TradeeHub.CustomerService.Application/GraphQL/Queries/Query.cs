@@ -1,4 +1,4 @@
-using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
+using BE.TradeeHub.CustomerService.Domain.Entities;
 using HotChocolate.Authorization;
 using HotChocolate.Data;
 using MongoDB.Bson;
@@ -6,7 +6,6 @@ using MongoDB.Driver;
 
 namespace BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
 
-// [QueryType]
 public class Query
 {
     [Authorize]
@@ -14,7 +13,7 @@ public class Query
     [UseProjection]
     [HotChocolate.Types.UseSorting]
     [HotChocolate.Types.UseFiltering]
-    public IExecutable<CustomerDbObject> GetCustomers([Service] IMongoCollection<CustomerDbObject> collection,
+    public IExecutable<CustomerEntity> GetCustomers([Service] IMongoCollection<CustomerEntity> collection,
         CancellationToken cancellationToken)
     {
         var collect = collection.AsExecutable();
@@ -29,8 +28,8 @@ public class Query
     [UseProjection]
     [HotChocolate.Types.UseSorting]
     [HotChocolate.Types.UseFiltering]
-    public static async Task<IExecutable<PropertyDbObject>> GetProperties(
-        [Service] IMongoCollection<PropertyDbObject> collection, CancellationToken cancellationToken)
+    public static async Task<IExecutable<PropertyEntity>> GetProperties(
+        [Service] IMongoCollection<PropertyEntity> collection, CancellationToken cancellationToken)
     {
         // Pass cancellationToken to async operations if needed
         return collection.AsExecutable();
@@ -38,7 +37,7 @@ public class Query
 
     [Authorize]
     [UseFirstOrDefault]
-    public IExecutable<CustomerDbObject> GetCustomerById([Service] IMongoCollection<CustomerDbObject> collection,
+    public IExecutable<CustomerEntity> GetCustomerById([Service] IMongoCollection<CustomerEntity> collection,
         ObjectId id, CancellationToken cancellationToken)
     {
         try
@@ -55,7 +54,7 @@ public class Query
     }
 
     [UseFirstOrDefault]
-    public static IExecutable<PropertyDbObject> GetPropertyById([Service] IMongoCollection<PropertyDbObject> collection,
+    public static IExecutable<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
         ObjectId id, CancellationToken cancellationToken)
     {
         return collection.Find(x => x.Id == id).AsExecutable();

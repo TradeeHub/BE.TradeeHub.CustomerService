@@ -4,9 +4,11 @@ using BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
 using BE.TradeeHub.CustomerService.Application.GraphQL.QueryResolvers;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Types;
+using BE.TradeeHub.CustomerService.Application.Interfaces;
+using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Interfaces;
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
 using BE.TradeeHub.CustomerService.Infrastructure;
-using BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
 using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
 using HotChocolate.Execution;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,6 +19,8 @@ using MongoDB.Driver;
 var builder = WebApplication.CreateBuilder(args);
 var appSettings = new AppSettings(builder.Configuration);
 builder.Services.AddSingleton<IAppSettings>(appSettings);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<UserContext>();
 
 builder.Services.AddCors(options =>
 {
@@ -30,10 +34,10 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSingleton<MongoDbContext>();
-builder.Services.AddScoped<CustomerRepository>();
-builder.Services.AddScoped<PropertyRepository>();
-builder.Services.AddScoped<CommentRepository>();
-builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<TypeResolver>();
 builder.Services.AddScoped<CustomerPropertiesDataLoader>();
 
@@ -53,7 +57,7 @@ builder.Services.AddAuthentication(x =>
         ValidateIssuerSigningKey = true,
         ValidateAudience = true,
     };
-    
+
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -62,18 +66,19 @@ builder.Services.AddAuthentication(x =>
             {
                 context.Token = context.Request.Cookies["jwt"];
             }
+
             return Task.CompletedTask;
         }
     };
 });
 
-builder.Services.AddSingleton<IMongoCollection<CustomerDbObject>>(serviceProvider =>
+builder.Services.AddSingleton<IMongoCollection<CustomerEntity>>(serviceProvider =>
 {
     var mongoDbContext = serviceProvider.GetRequiredService<MongoDbContext>();
     return mongoDbContext.Customers; // Assuming this is the property name in MongoDbContext for the collection
 });
 
-builder.Services.AddSingleton<IMongoCollection<PropertyDbObject>>(serviceProvider =>
+builder.Services.AddSingleton<IMongoCollection<PropertyEntity>>(serviceProvider =>
 {
     var mongoDbContext = serviceProvider.GetRequiredService<MongoDbContext>();
     return mongoDbContext.Properties; // Assuming this is the property name in MongoDbContext for the collection

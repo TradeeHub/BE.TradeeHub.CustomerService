@@ -5,11 +5,10 @@ namespace BE.TradeeHub.CustomerService.Infrastructure.DbObjects;
 
 public class PropertyDbObject
 {
-    [BsonId]
-    public ObjectId Id { get; set; }
-    public AddressDbObject Property { get; set; } = null!;
-    public AddressDbObject? Billing{ get; set; }
-    public string? Location { get; set; }
+    [BsonId] public ObjectId Id { get; set; }
+    public Guid UserOwnerId { get; set; }
+    public PlaceDbObject Property { get; set; } = null!;
+    public PlaceDbObject? Billing { get; set; }
     public List<ObjectId> Customers { get; set; } = null!;
     public List<ObjectId>? Quotes { get; set; }
     public List<ObjectId>? Jobs { get; set; }

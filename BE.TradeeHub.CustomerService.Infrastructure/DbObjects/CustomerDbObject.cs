@@ -1,3 +1,4 @@
+using BE.TradeeHub.CustomerService.Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -13,7 +14,7 @@ public class CustomerDbObject
     public string? Surname { get; set; }
     public string FullName => $"{Title} {Name} {Surname}".Trim();
     public string? Alias { get; set; }
-    public string Status { get; set; }
+    public CustomerStatus Status { get; set; }
     public List<EmailDbObject>? Emails { get; set; }
     public List<PhoneNumberDbObject>? PhoneNumbers { get; set; }
     public List<ObjectId>? Properties { get; set; }
@@ -27,5 +28,5 @@ public class CustomerDbObject
     public decimal? ReferralFeeFixed { get; set; }
     public decimal? ReferralFeePercentage { get; set; }
     public decimal? CustomerRating { get; set; }
-    public List<CommentDbObject>? Comments { get; set; } 
+    public List<ObjectId>? Comments { get; set; } 
 }

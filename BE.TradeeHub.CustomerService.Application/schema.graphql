@@ -3,18 +3,6 @@ schema {
   mutation: Mutation
 }
 
-type AddressDbObject {
-  address: String
-  city: String
-  postcode: String
-  fullAddress: String
-}
-
-type CommentDbObject {
-  comment: String
-  uploadUrls: [String!]!
-}
-
 type CustomerDbObject {
   properties: [PropertyDbObject]
   id: ID!
@@ -24,7 +12,7 @@ type CustomerDbObject {
   surname: String
   fullName: String!
   alias: String
-  status: String!
+  status: CustomerStatus!
   emails: [EmailDbObject!]
   phoneNumbers: [PhoneNumberDbObject!]
   tags: [String!]
@@ -37,7 +25,7 @@ type CustomerDbObject {
   referralFeeFixed: Decimal
   referralFeePercentage: Decimal
   customerRating: Decimal
-  comments: [CommentDbObject!]
+  comments: [ID!]
 }
 
 "A connection to a list of items."
@@ -61,6 +49,12 @@ type CustomersEdge {
 type EmailDbObject {
   emailType: String!
   email: String!
+  receiveNotifications: Boolean!
+}
+
+type LocationDbObject {
+  lat: Decimal!
+  lng: Decimal!
 }
 
 type Mutation {
@@ -82,15 +76,26 @@ type PageInfo {
 type PhoneNumberDbObject {
   phoneNumberType: String!
   phoneNumber: String!
+  receiveNotifications: Boolean!
+}
+
+type PlaceDbObject {
+  placeId: String!
+  address: String!
+  country: String!
+  countryCode: String!
+  callingCode: String!
+  location: LocationDbObject!
+  viewport: ViewPortDbObject!
 }
 
 type PropertyDbObject {
   "The customers associated with this property."
   customers: [CustomerDbObject]
   id: ID!
-  property: AddressDbObject!
-  billing: AddressDbObject
-  location: String
+  userOwnerId: UUID!
+  property: PlaceDbObject!
+  billing: PlaceDbObject
   quotes: [ID!]
   jobs: [ID!]
   createdAt: DateTime!
@@ -104,23 +109,9 @@ type Query {
   customerById(id: ID!): CustomerDbObject @authorize
 }
 
-input CommentDbObjectFilter {
-  AND: [CommentDbObjectFilter!]
-  OR: [CommentDbObjectFilter!]
-  comment: String
-  comment_not: String
-  comment_contains: String
-  comment_not_contains: String
-  comment_starts_with: String
-  comment_not_starts_with: String
-  comment_ends_with: String
-  comment_not_ends_with: String
-  comment_in: [String]
-  comment_not_in: [String]
-  uploadUrls_some: ISingleFilterOfStringFilter
-  uploadUrls_none: ISingleFilterOfStringFilter
-  uploadUrls_all: ISingleFilterOfStringFilter
-  uploadUrls_any: Boolean
+type ViewPortDbObject {
+  northeast: LocationDbObject!
+  southwest: LocationDbObject!
 }
 
 input CustomerDbObjectFilter {
@@ -186,16 +177,18 @@ input CustomerDbObjectFilter {
   alias_not_ends_with: String
   alias_in: [String]
   alias_not_in: [String]
-  status: String
-  status_not: String
-  status_contains: String
-  status_not_contains: String
-  status_starts_with: String
-  status_not_starts_with: String
-  status_ends_with: String
-  status_not_ends_with: String
-  status_in: [String!]
-  status_not_in: [String!]
+  status: CustomerStatus
+  status_not: CustomerStatus
+  status_in: [CustomerStatus!]
+  status_not_in: [CustomerStatus!]
+  status_gt: CustomerStatus
+  status_not_gt: CustomerStatus
+  status_gte: CustomerStatus
+  status_not_gte: CustomerStatus
+  status_lt: CustomerStatus
+  status_not_lt: CustomerStatus
+  status_lte: CustomerStatus
+  status_not_lte: CustomerStatus
   emails_some: EmailDbObjectFilter
   emails_none: EmailDbObjectFilter
   emails_all: EmailDbObjectFilter
@@ -306,9 +299,9 @@ input CustomerDbObjectFilter {
   customerRating_not_lt: Decimal
   customerRating_lte: Decimal
   customerRating_not_lte: Decimal
-  comments_some: CommentDbObjectFilter
-  comments_none: CommentDbObjectFilter
-  comments_all: CommentDbObjectFilter
+  comments_some: ObjectIdFilter
+  comments_none: ObjectIdFilter
+  comments_all: ObjectIdFilter
   comments_any: Boolean
 }
 
@@ -353,6 +346,8 @@ input EmailDbObjectFilter {
   email_not_ends_with: String
   email_in: [String!]
   email_not_in: [String!]
+  receiveNotifications: Boolean
+  receiveNotifications_not: Boolean
 }
 
 input ISingleFilterOfStringFilter {
@@ -458,12 +453,29 @@ input PhoneNumberDbObjectFilter {
   phoneNumber_not_ends_with: String
   phoneNumber_in: [String!]
   phoneNumber_not_in: [String!]
+  receiveNotifications: Boolean
+  receiveNotifications_not: Boolean
 }
 
 enum ApplyPolicy {
   BEFORE_RESOLVER
   AFTER_RESOLVER
   VALIDATION
+}
+
+enum CustomerStatus {
+  LEAD
+  APPOINTMENT_SET
+  QUOTE_PROVIDED
+  QUOTE_ACCEPTED
+  WORK_SCHEDULED
+  WORK_IN_PROGRESS
+  WORK_COMPLETED
+  INVOICE_SENT
+  PAYMENT_RECEIVED
+  FOLLOW_UP_REQUIRED
+  CLOSED_LOST
+  COMPLETED
 }
 
 enum SortOperationKind {

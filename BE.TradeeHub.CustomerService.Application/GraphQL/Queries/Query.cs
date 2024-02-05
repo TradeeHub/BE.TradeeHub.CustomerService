@@ -14,14 +14,15 @@ public class Query
     [HotChocolate.Types.UseSorting]
     [HotChocolate.Types.UseFiltering]
     public IExecutable<CustomerEntity> GetCustomers([Service] IMongoCollection<CustomerEntity> collection,
-        CancellationToken cancellationToken)
+        [Service] UserContext userContext, CancellationToken cancellationToken)
     {
-        var collect = collection.AsExecutable();
+        // Filter the collection to only include customers associated with the UserId from the UserContext
+        var filteredCollection = collection.Find(x => x.UserOwnerId == userContext.UserId).AsExecutable();
 
         // Use cancellationToken in any cancellable operation here
-        // For example, pass it to database queries if supported
+        // For example, pass it to the filteredCollection execution if supported
 
-        return collect;
+        return filteredCollection;
     }
  
     [UsePaging]
@@ -37,21 +38,21 @@ public class Query
 
     [Authorize]
     [UseFirstOrDefault]
-    public IExecutable<CustomerEntity> GetCustomerById([Service] IMongoCollection<CustomerEntity> collection,
-        ObjectId id, CancellationToken cancellationToken)
+    public IExecutable<CustomerEntity> GetCustomerById([Service] IMongoCollection<CustomerEntity> collection, [Service] UserContext userContext, ObjectId id, CancellationToken cancellationToken)
     {
         try
         {
-            var temp =  collection.Find(x => x.Id == id).AsExecutable();
+            var query = collection.Find(x => x.Id == id && x.UserOwnerId == userContext.UserId).AsExecutable();
 
-            return temp;
+            return query;
         }
         catch (Exception e)
         {
-            var tmep = e.Message;
+            var temp = e.Message;
             throw;
         }
     }
+
 
     [UseFirstOrDefault]
     public static IExecutable<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,

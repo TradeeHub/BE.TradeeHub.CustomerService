@@ -14,10 +14,13 @@ using HotChocolate.Execution;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 var appSettings = new AppSettings(builder.Configuration);
+// BsonSerializer.RegisterSerializer(new EnumDescriptionSerializer<CommentType>());
+
 builder.Services.AddSingleton<IAppSettings>(appSettings);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<UserContext>();

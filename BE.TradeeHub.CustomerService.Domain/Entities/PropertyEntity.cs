@@ -16,4 +16,17 @@ public class PropertyEntity
     public Guid CreatedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
     public Guid? ModifiedBy { get; set; }
+    
+    public PropertyEntity(Guid userOwnerId, PlaceEntity property, PlaceEntity? billing, Guid createdBy, bool isBillingAddress)
+    {
+        UserOwnerId = userOwnerId;
+        Property = property;
+        Billing = billing;
+        Billing = isBillingAddress && billing == null ? property : null;
+        Customers = [];
+        Quotes = [];
+        Jobs = [];
+        CreatedAt = DateTime.UtcNow;
+        CreatedBy = createdBy;
+    }
 }

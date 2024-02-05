@@ -63,8 +63,9 @@ public class CustomerRepository : ICustomerRepository
         return await cursor.ToListAsync();
     }
 
-    public async Task<ObjectId> AddNewCustomerAsync(CustomerEntity customer, IEnumerable<PropertyEntity> properties,
-        IEnumerable<CommentEntity> comments, CancellationToken ctx)
+    public async Task<(ObjectId Id, string CustomerReferenceNumber)> AddNewCustomerAsync(CustomerEntity customer,
+        IList<PropertyEntity> properties,
+        IList<CommentEntity> comments, CancellationToken ctx)
     {
         using var session = await _dbContext.Client.StartSessionAsync(cancellationToken: ctx);
 
@@ -73,41 +74,39 @@ public class CustomerRepository : ICustomerRepository
         try
         {
             // Generate unique CRN for the customer
-            customer.CustomerReferenceNumber = await GenerateUniqueCustomerReferenceNumber(customer.UserOwnerId, session, ctx);
+            customer.CustomerReferenceNumber =
+                await GenerateUniqueCustomerReferenceNumber(customer.UserOwnerId, session, ctx);
 
             // Initialize Properties and Comments lists if necessary
-            customer.Properties = properties.Any() ? new List<ObjectId>() : null;
-            customer.Comments = comments.Any() ? new List<ObjectId>() : null;
+            customer.Properties = new List<ObjectId>();
+            customer.Comments = new List<ObjectId>();
 
             // Add customer first to get its ID
             await _dbContext.Customers.InsertOneAsync(session, customer, cancellationToken: ctx);
 
             // Handle Properties in a single operation if there are any
-            if (properties.Any())
+
+            foreach (var property in properties)
             {
-                foreach (var property in properties)
-                {
-                    property.Customers = new List<ObjectId> { customer.Id };
-                }
-                
-                await _dbContext.Properties.InsertManyAsync(session, properties, cancellationToken: ctx);
-                // Update customer.Properties with the inserted IDs
-                customer.Properties.AddRange(properties.Select(p => p.Id));
+                property.Customers = new List<ObjectId> { customer.Id };
             }
+
+            await _dbContext.Properties.InsertManyAsync(session, properties, cancellationToken: ctx);
+            // Update customer.Properties with the inserted IDs
+            customer.Properties.AddRange(properties.Select(p => p.Id));
+
 
             // Handle Comments in a single operation if there are any, making sure to link them to the customer
-            if (comments.Any())
-            {
-                // Link comments to the customer by setting the CustomerId before insertion
-                foreach (var comment in comments)
-                {
-                    comment.CustomerId = customer.Id;
-                }
 
-                await _dbContext.Comments.InsertManyAsync(session, comments, cancellationToken: ctx);
-                // Update customer.Comments with the inserted IDs
-                customer.Comments.AddRange(comments.Select(c => c.Id));
+            // Link comments to the customer by setting the CustomerId before insertion
+            foreach (var comment in comments)
+            {
+                comment.CustomerId = customer.Id;
             }
+
+            await _dbContext.Comments.InsertManyAsync(session, comments, cancellationToken: ctx);
+            // Update customer.Comments with the inserted IDs
+            customer.Comments.AddRange(comments.Select(c => c.Id));
 
             // Update the customer with the new lists of property and comment IDs if any were added
             if (customer.Properties?.Any() == true || customer.Comments?.Any() == true)
@@ -120,8 +119,8 @@ public class CustomerRepository : ICustomerRepository
             }
 
             await session.CommitTransactionAsync(ctx);
-            
-            return customer.Id;
+
+            return (customer.Id, customer.CustomerReferenceNumber);
         }
         catch (Exception ex)
         {
@@ -131,7 +130,8 @@ public class CustomerRepository : ICustomerRepository
     }
 
 
-    private async Task<string> GenerateUniqueCustomerReferenceNumber(Guid userOwnerId, IClientSessionHandle session, CancellationToken ctx)
+    private async Task<string> GenerateUniqueCustomerReferenceNumber(Guid userOwnerId, IClientSessionHandle session,
+        CancellationToken ctx)
     {
         var customerRefNumCollection = _dbContext.CustomerReferenceNumber;
 

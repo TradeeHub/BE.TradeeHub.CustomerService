@@ -9,4 +9,5 @@ public class CustomerReferenceNumberEntity
     public ObjectId Id { get; set; }
     public Guid UserOwnerId { get; set; }
     public int Counter { get; set; }
+    
 }

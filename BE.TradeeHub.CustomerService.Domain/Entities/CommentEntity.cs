@@ -14,6 +14,22 @@ public class CommentEntity
     public DateTime CreatedAt { get; set; }
     public bool Archived {get; set; }
     public string? Comment { get; set; }
-    public List<string> UploadUrls { get; set; } = new List<string>();
-    public string CommentType { get; set; }
+    public List<string> UploadUrls { get; set; }
+    [BsonRepresentation(BsonType.String)]
+    public CommentType CommentType { get; set; }
+
+    public CommentEntity()
+    {
+        
+    }
+    public CommentEntity(Guid userOwnerId, string comment, Guid createdBy)
+    {
+        UserOwnerId = userOwnerId;
+        Comment = comment;
+        CreatedAt = DateTime.UtcNow;
+        CreatedById = createdBy;
+        CommentType = CommentType.General;
+        UploadUrls = [];
+        Archived = false;
+    }
 }

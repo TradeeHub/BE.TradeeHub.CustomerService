@@ -44,12 +44,40 @@ public static class AddNewCustomerRequestExtensions
     {
         if (request.Property == null) return null;
 
+        var placeEntity = new PlaceEntity
+        {
+            PlaceId = request.Property.PlaceId,
+            Address = request.Property.Address,
+            Country = request.Property.Country,
+            CountryCode = request.Property.CountryCode,
+            CallingCode = request.Property.CallingCode,
+            Location = new LocationEntity
+            {
+                Lat = request.Property.Location.Lat,
+                Lng = request.Property.Location.Lng
+            },
+            Viewport = new ViewportEntity
+            {
+                Northeast = new LocationEntity
+                {
+                    Lat = request.Property.Viewport.Northeast.Lat,
+                    Lng = request.Property.Viewport.Northeast.Lng
+                },
+                Southwest = new LocationEntity
+                {
+                    Lat = request.Property.Viewport.Southwest.Lat,
+                    Lng = request.Property.Viewport.Southwest.Lng
+                }
+            }
+        };
+
         var propertyEntity = new PropertyEntity
         {
             UserOwnerId = userOwnerId,
-            // Assuming PlaceEntity mapping is correctly handled
-            Property = new PlaceEntity { /* Map from request.Property */ },
-            Billing = request.IsBillingAddress && request.Billing != null ? new PlaceEntity { /* Map from request.Billing */ } : null,
+            Property = placeEntity,
+            Billing = request is { IsBillingAddress: true, Billing: not null }
+                ? placeEntity
+                : null,
             CreatedAt = DateTime.UtcNow,
             CreatedBy = createdBy,
             Customers = new List<ObjectId>() // To be filled in after customer creation

@@ -85,6 +85,11 @@ public class CustomerRepository : ICustomerRepository
             // Handle Properties in a single operation if there are any
             if (properties.Any())
             {
+                foreach (var property in properties)
+                {
+                    property.Customers = new List<ObjectId> { customer.Id };
+                }
+                
                 await _dbContext.Properties.InsertManyAsync(session, properties, cancellationToken: ctx);
                 // Update customer.Properties with the inserted IDs
                 customer.Properties.AddRange(properties.Select(p => p.Id));

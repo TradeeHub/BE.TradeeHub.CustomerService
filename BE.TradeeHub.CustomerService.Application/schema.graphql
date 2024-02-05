@@ -99,7 +99,7 @@ type PlaceEntity {
   countryCode: String!
   callingCode: String!
   location: LocationEntity!
-  viewport: ViewPortEntity!
+  viewport: ViewportEntity!
 }
 
 type PropertyEntity {
@@ -122,7 +122,7 @@ type Query {
   customerById(id: ID!): CustomerEntity @authorize
 }
 
-type ViewPortEntity {
+type ViewportEntity {
   northeast: LocationEntity!
   southwest: LocationEntity!
 }

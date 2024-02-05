@@ -8,5 +8,5 @@ public class PlaceEntity
     public string CountryCode { get; set; }
     public string CallingCode { get; set; }
     public LocationEntity Location { get; set; }
-    public ViewPortEntity Viewport { get; set; }
+    public ViewportEntity Viewport { get; set; }
 }

@@ -40,6 +40,7 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<TypeResolver>();
 builder.Services.AddScoped<CustomerPropertiesDataLoader>();
+builder.Services.AddScoped<CustomerCommentsDataLoader>();
 
 builder.Services.AddAuthentication(x =>
 {
@@ -90,6 +91,7 @@ builder.Services
     .AddGraphQLServer()
     .AddAuthorization()
     .AddDataLoader<CustomerPropertiesDataLoader>()
+    .AddDataLoader<CustomerCommentsDataLoader>()
     .BindRuntimeType<ObjectId, IdType>()
     .AddTypeConverter<ObjectId, string>(o => o.ToString())
     .AddTypeConverter<string, ObjectId>(o => ObjectId.Parse(o))

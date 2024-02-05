@@ -124,10 +124,8 @@ public class CustomerRepository : ICustomerRepository
     }
 
 
-    private async Task<string> GenerateUniqueCustomerReferenceNumber(Guid userOwnerId, IClientSessionHandle session,
-        CancellationToken ctx)
+    private async Task<string> GenerateUniqueCustomerReferenceNumber(Guid userOwnerId, IClientSessionHandle session, CancellationToken ctx)
     {
-        // Use _dbContext to access the CustomerReferenceNumber collection correctly
         var customerRefNumCollection = _dbContext.CustomerReferenceNumber;
 
         // Define the filter to find the document for the specific UserOwnerId
@@ -140,11 +138,24 @@ public class CustomerRepository : ICustomerRepository
         var options = new FindOneAndUpdateOptions<CustomerReferenceNumberEntity, CustomerReferenceNumberEntity>
         {
             ReturnDocument = ReturnDocument.After,
-            IsUpsert = true,
+            IsUpsert = true
         };
 
         // Perform the find and update operation atomically within the session
         var result = await customerRefNumCollection.FindOneAndUpdateAsync(session, filter, update, options, ctx);
+
+        // If the result is null, explicitly insert a new document with Counter set to 1.
+        // This case might occur if the FindOneAndUpdateAsync doesn't automatically upsert in certain conditions.
+        if (result == null)
+        {
+            var newEntry = new CustomerReferenceNumberEntity
+            {
+                UserOwnerId = userOwnerId,
+                Counter = 1
+            };
+            await customerRefNumCollection.InsertOneAsync(session, newEntry, cancellationToken: ctx);
+            return "CRN-1";
+        }
 
         // Construct the CRN using the updated counter value
         return $"CRN-{result.Counter}";

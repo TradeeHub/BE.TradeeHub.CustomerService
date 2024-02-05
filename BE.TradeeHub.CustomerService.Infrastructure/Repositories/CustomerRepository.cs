@@ -63,7 +63,7 @@ public class CustomerRepository : ICustomerRepository
         return await cursor.ToListAsync();
     }
 
-    public async Task AddNewCustomerAsync(CustomerEntity customer, IEnumerable<PropertyEntity> properties,
+    public async Task<ObjectId> AddNewCustomerAsync(CustomerEntity customer, IEnumerable<PropertyEntity> properties,
         IEnumerable<CommentEntity> comments, CancellationToken ctx)
     {
         using var session = await _dbContext.Client.StartSessionAsync(cancellationToken: ctx);
@@ -120,6 +120,8 @@ public class CustomerRepository : ICustomerRepository
             }
 
             await session.CommitTransactionAsync(ctx);
+            
+            return customer.Id;
         }
         catch (Exception ex)
         {

@@ -12,7 +12,7 @@ type CommentEntity {
   archived: Boolean!
   comment: String
   uploadUrls: [String!]!
-  commentType: CommentType!
+  commentType: String!
 }
 
 type CustomerEntity {
@@ -71,7 +71,7 @@ type LocationEntity {
 }
 
 type Mutation {
-  addNewCustomer(request: AddNewCustomerRequestInput!): String!
+  addNewCustomer(request: AddNewCustomerRequestInput!): ID!
 }
 
 "Information about pagination in a connection."
@@ -534,14 +534,6 @@ enum ApplyPolicy {
   BEFORE_RESOLVER
   AFTER_RESOLVER
   VALIDATION
-}
-
-enum CommentType {
-  GENERAL
-  APPOINTMENT
-  QUOTE
-  JOB
-  INVOICE
 }
 
 enum CustomerStatus {

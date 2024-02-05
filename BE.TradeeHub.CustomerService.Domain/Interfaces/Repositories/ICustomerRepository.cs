@@ -11,5 +11,5 @@ public interface ICustomerRepository
     Task<IEnumerable<CustomerEntity>> GetCustomersByNameAsync(string name);
     Task<IEnumerable<CustomerEntity>> GetCustomersByAddressAsync(string address);
     Task<IEnumerable<CustomerEntity>> GetCustomersByIdsAsync(IEnumerable<ObjectId> customerIds);
-    Task AddNewCustomerAsync(CustomerEntity customer, IEnumerable<PropertyEntity> properties, IEnumerable<CommentEntity> comments, CancellationToken ctx);
+    Task<ObjectId> AddNewCustomerAsync(CustomerEntity customer, IEnumerable<PropertyEntity> properties, IEnumerable<CommentEntity> comments, CancellationToken ctx);
 }

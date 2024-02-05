@@ -15,5 +15,5 @@ public class CommentEntity
     public bool Archived {get; set; }
     public string? Comment { get; set; }
     public List<string> UploadUrls { get; set; } = new List<string>();
-    public CommentType CommentType { get; set; }
+    public string CommentType { get; set; }
 }

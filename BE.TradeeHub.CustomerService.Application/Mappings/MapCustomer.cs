@@ -1,9 +1,10 @@
 ﻿using BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
 using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Enums;
+using BE.TradeeHub.CustomerService.Domain.Extensions;
 using MongoDB.Bson;
 
-namespace BE.TradeeHub.CustomerService.Application.Extensions;
+namespace BE.TradeeHub.CustomerService.Application.Mappings;
 
 public static class AddNewCustomerRequestExtensions
 {
@@ -75,7 +76,7 @@ public static class AddNewCustomerRequestExtensions
         {
             UserOwnerId = userOwnerId,
             Property = placeEntity,
-            Billing = request is { IsBillingAddress: true, Billing: not null }
+            Billing = request is { IsBillingAddress: true, Billing: null }
                 ? placeEntity
                 : null,
             CreatedAt = DateTime.UtcNow,
@@ -96,10 +97,10 @@ public static class AddNewCustomerRequestExtensions
             Comment = request.Comment,
             CreatedAt = DateTime.UtcNow,
             CreatedById = createdBy,
-            CommentType = CommentType.General,
+            CommentType = CommentType.General.GetDescription(),
             UploadUrls = new List<string>()
         };
-
+        
         return commentEntity;
     }
 }

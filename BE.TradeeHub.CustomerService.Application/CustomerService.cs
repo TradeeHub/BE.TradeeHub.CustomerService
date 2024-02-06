@@ -17,7 +17,7 @@ public class CustomerService : ICustomerService
         _customerRepository = customerRepository;
     }
 
-    public async Task<AddNewUserResponse> AddNewCustomer(UserContext userContext, AddNewCustomerRequest request, CancellationToken ctx)
+    public async Task<AddNewCustomerResponse> AddNewCustomer(UserContext userContext, AddNewCustomerRequest request, CancellationToken ctx)
     {
         var customerEntity = request.ToCustomerEntity(userContext.UserId, userContext.UserId);
     
@@ -32,7 +32,7 @@ public class CustomerService : ICustomerService
         // Pass the entities to the repository method, which now receives empty lists if entities are null
         var (id, customerReferenceNumber) = await _customerRepository.AddNewCustomerAsync(customerEntity, properties, comments, ctx);
 
-        return new AddNewUserResponse
+        return new AddNewCustomerResponse
         {
             Id = id,
             CustomerReferenceNumber = customerReferenceNumber

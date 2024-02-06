@@ -85,28 +85,28 @@ public class CustomerRepository : ICustomerRepository
             await _dbContext.Customers.InsertOneAsync(session, customer, cancellationToken: ctx);
 
             // Handle Properties in a single operation if there are any
-
-            foreach (var property in properties)
+            if(properties.Any())
             {
-                property.Customers = new List<ObjectId> { customer.Id };
-            }
+                foreach (var property in properties)
+                {
+                    property.Customers = [customer.Id];
+                }
 
-            await _dbContext.Properties.InsertManyAsync(session, properties, cancellationToken: ctx);
-            // Update customer.Properties with the inserted IDs
-            customer.Properties.AddRange(properties.Select(p => p.Id));
-
-
+                await _dbContext.Properties.InsertManyAsync(session, properties, cancellationToken: ctx);
+                customer.Properties.AddRange(properties.Select(p => p.Id));
+            } 
+            
             // Handle Comments in a single operation if there are any, making sure to link them to the customer
-
-            // Link comments to the customer by setting the CustomerId before insertion
-            foreach (var comment in comments)
+            if (comments.Any())
             {
-                comment.CustomerId = customer.Id;
-            }
+                foreach (var comment in comments)
+                {
+                    comment.CustomerId = customer.Id;
+                }
 
-            await _dbContext.Comments.InsertManyAsync(session, comments, cancellationToken: ctx);
-            // Update customer.Comments with the inserted IDs
-            customer.Comments.AddRange(comments.Select(c => c.Id));
+                await _dbContext.Comments.InsertManyAsync(session, comments, cancellationToken: ctx);
+                customer.Comments.AddRange(comments.Select(c => c.Id));
+            }
 
             // Update the customer with the new lists of property and comment IDs if any were added
             if (customer.Properties?.Any() == true || customer.Comments?.Any() == true)

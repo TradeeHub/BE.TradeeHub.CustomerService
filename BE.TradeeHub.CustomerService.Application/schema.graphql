@@ -3,7 +3,7 @@ schema {
   mutation: Mutation
 }
 
-type AddNewUserResponse {
+type AddNewCustomerResponse {
   id: ID!
   customerReferenceNumber: String!
 }
@@ -76,7 +76,7 @@ type LocationEntity {
 }
 
 type Mutation {
-  addNewCustomer(request: AddNewCustomerRequestInput!): AddNewUserResponse!
+  addNewCustomer(request: AddNewCustomerRequestInput!): AddNewCustomerResponse!
 }
 
 "Information about pagination in a connection."

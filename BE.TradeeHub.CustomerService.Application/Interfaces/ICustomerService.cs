@@ -5,6 +5,6 @@ namespace BE.TradeeHub.CustomerService.Application.Interfaces;
 
 public interface ICustomerService
 {
-    Task<AddNewUserResponse> AddNewCustomer(UserContext userContext, AddNewCustomerRequest request,
+    Task<AddNewCustomerResponse> AddNewCustomer(UserContext userContext, AddNewCustomerRequest request,
         CancellationToken ctx);
 }

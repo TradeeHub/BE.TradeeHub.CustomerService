@@ -16,15 +16,12 @@ public class Query
     public IExecutable<CustomerEntity> GetCustomers([Service] IMongoCollection<CustomerEntity> collection,
         [Service] UserContext userContext, CancellationToken cancellationToken)
     {
-        // Filter the collection to only include customers associated with the UserId from the UserContext
-        var filteredCollection = collection.Find(x => x.UserOwnerId == userContext.UserId).AsExecutable();
+        var sortDefinition = Builders<CustomerEntity>.Sort.Descending(x => x.ModifiedAt).Descending(x => x.CreatedAt);
+        var query = collection.Find(x => x.UserOwnerId == userContext.UserId).Sort(sortDefinition);
+        var executableQuery = query.AsExecutable();
 
-        // Use cancellationToken in any cancellable operation here
-        // For example, pass it to the filteredCollection execution if supported
-
-        return filteredCollection;
+        return executableQuery;
     }
- 
     [UsePaging]
     [UseProjection]
     [HotChocolate.Types.UseSorting]

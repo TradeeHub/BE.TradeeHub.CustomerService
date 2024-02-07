@@ -17,10 +17,11 @@ public class CustomerService : ICustomerService
         _customerRepository = customerRepository;
     }
 
-    public async Task<AddNewCustomerResponse> AddNewCustomer(UserContext userContext, AddNewCustomerRequest request, CancellationToken ctx)
+    public async Task<AddNewCustomerResponse> AddNewCustomer(UserContext userContext, AddNewCustomerRequest request,
+        CancellationToken ctx)
     {
         var customerEntity = request.ToCustomerEntity(userContext.UserId, userContext.UserId);
-    
+
         // Attempt to create property and comment entities, which may return null
         var propertyEntity = request.ToPropertyEntity(userContext.UserId, userContext.UserId);
         var commentEntity = request.ToCommentEntity(userContext.UserId, userContext.UserId);
@@ -30,12 +31,18 @@ public class CustomerService : ICustomerService
         var comments = commentEntity != null ? [commentEntity] : new List<CommentEntity>();
 
         // Pass the entities to the repository method, which now receives empty lists if entities are null
-        var (id, customerReferenceNumber) = await _customerRepository.AddNewCustomerAsync(customerEntity, properties, comments, ctx);
+        var (id, customerReferenceNumber) =
+            await _customerRepository.AddNewCustomerAsync(customerEntity, properties, comments, ctx);
 
         return new AddNewCustomerResponse
         {
             Id = id,
             CustomerReferenceNumber = customerReferenceNumber
         };
+    }
+
+    public async Task<List<CustomerEntity>> SearchCustomersAsync(string searchTerm, Guid userId, CancellationToken ctx)
+    {
+        return await _customerRepository.SearchCustomersAsync(searchTerm, userId, ctx);
     }
 }

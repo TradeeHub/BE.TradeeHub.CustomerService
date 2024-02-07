@@ -29,7 +29,7 @@ type CustomerEntity {
   title: String
   name: String
   surname: String
-  fullName: String!
+  fullName: String
   alias: String
   status: CustomerStatus!
   emails: [EmailEntity!]
@@ -39,11 +39,9 @@ type CustomerEntity {
   createdBy: UUID!
   modifiedAt: DateTime
   modifiedBy: UUID
-  referredByCustomer: ID
-  referredByOther: String
-  referralFeeFixed: Decimal
-  referralFeePercentage: Decimal
+  customerReferenceEntityId: ID
   customerRating: Decimal
+  archived: Boolean!
 }
 
 "A connection to a list of items."
@@ -125,6 +123,7 @@ type PropertyEntity {
 type Query {
   customers("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String order_by: CustomerEntitySort where: CustomerEntityFilter): CustomersConnection @authorize
   customerById(id: ID!): CustomerEntity @authorize
+  searchCustomers(searchTerm: String!): [CustomerEntity!]!
 }
 
 type ViewportEntity {
@@ -210,8 +209,8 @@ input CustomerEntityFilter {
   fullName_not_starts_with: String
   fullName_ends_with: String
   fullName_not_ends_with: String
-  fullName_in: [String!]
-  fullName_not_in: [String!]
+  fullName_in: [String]
+  fullName_not_in: [String]
   alias: String
   alias_not: String
   alias_contains: String
@@ -298,40 +297,6 @@ input CustomerEntityFilter {
   modifiedBy_not_lt: UUID
   modifiedBy_lte: UUID
   modifiedBy_not_lte: UUID
-  referredByOther: String
-  referredByOther_not: String
-  referredByOther_contains: String
-  referredByOther_not_contains: String
-  referredByOther_starts_with: String
-  referredByOther_not_starts_with: String
-  referredByOther_ends_with: String
-  referredByOther_not_ends_with: String
-  referredByOther_in: [String]
-  referredByOther_not_in: [String]
-  referralFeeFixed: Decimal
-  referralFeeFixed_not: Decimal
-  referralFeeFixed_in: [Decimal]
-  referralFeeFixed_not_in: [Decimal]
-  referralFeeFixed_gt: Decimal
-  referralFeeFixed_not_gt: Decimal
-  referralFeeFixed_gte: Decimal
-  referralFeeFixed_not_gte: Decimal
-  referralFeeFixed_lt: Decimal
-  referralFeeFixed_not_lt: Decimal
-  referralFeeFixed_lte: Decimal
-  referralFeeFixed_not_lte: Decimal
-  referralFeePercentage: Decimal
-  referralFeePercentage_not: Decimal
-  referralFeePercentage_in: [Decimal]
-  referralFeePercentage_not_in: [Decimal]
-  referralFeePercentage_gt: Decimal
-  referralFeePercentage_not_gt: Decimal
-  referralFeePercentage_gte: Decimal
-  referralFeePercentage_not_gte: Decimal
-  referralFeePercentage_lt: Decimal
-  referralFeePercentage_not_lt: Decimal
-  referralFeePercentage_lte: Decimal
-  referralFeePercentage_not_lte: Decimal
   customerRating: Decimal
   customerRating_not: Decimal
   customerRating_in: [Decimal]
@@ -344,6 +309,8 @@ input CustomerEntityFilter {
   customerRating_not_lt: Decimal
   customerRating_lte: Decimal
   customerRating_not_lte: Decimal
+  archived: Boolean
+  archived_not: Boolean
   comments_some: ObjectIdFilter
   comments_none: ObjectIdFilter
   comments_all: ObjectIdFilter
@@ -363,10 +330,8 @@ input CustomerEntitySort {
   createdBy: SortOperationKind
   modifiedAt: SortOperationKind
   modifiedBy: SortOperationKind
-  referredByOther: SortOperationKind
-  referralFeeFixed: SortOperationKind
-  referralFeePercentage: SortOperationKind
   customerRating: SortOperationKind
+  archived: SortOperationKind
 }
 
 input CustomerPlaceRequestInput {

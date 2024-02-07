@@ -25,7 +25,7 @@ public class CommentEntity
     public CommentEntity(Guid userOwnerId, string comment, Guid createdBy)
     {
         UserOwnerId = userOwnerId;
-        Comment = comment;
+        Comment = comment.Trim();
         CreatedAt = DateTime.UtcNow;
         CreatedById = createdBy;
         CommentType = CommentType.General;

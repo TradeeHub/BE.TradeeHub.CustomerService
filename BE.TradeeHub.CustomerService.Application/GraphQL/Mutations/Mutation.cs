@@ -6,8 +6,10 @@ namespace BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
 
 public class Mutation
 {
+    
     public async Task<AddNewCustomerResponse> AddNewCustomer([Service] ICustomerService customerService, [Service] UserContext userContext, AddNewCustomerRequest request, CancellationToken ctx)
     {
         return await customerService.AddNewCustomer(userContext, request, ctx);
     }
+    
 }

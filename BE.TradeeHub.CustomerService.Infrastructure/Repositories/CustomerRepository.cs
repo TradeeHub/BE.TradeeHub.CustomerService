@@ -85,7 +85,7 @@ public class CustomerRepository : ICustomerRepository
             await _dbContext.Customers.InsertOneAsync(session, customer, cancellationToken: ctx);
 
             // Handle Properties in a single operation if there are any
-            if(properties.Any())
+            if (properties.Any())
             {
                 foreach (var property in properties)
                 {
@@ -94,8 +94,8 @@ public class CustomerRepository : ICustomerRepository
 
                 await _dbContext.Properties.InsertManyAsync(session, properties, cancellationToken: ctx);
                 customer.Properties.AddRange(properties.Select(p => p.Id));
-            } 
-            
+            }
+
             // Handle Comments in a single operation if there are any, making sure to link them to the customer
             if (comments.Any())
             {
@@ -166,5 +166,47 @@ public class CustomerRepository : ICustomerRepository
 
         // Construct the CRN using the updated counter value
         return $"CRN-{result.Counter}";
+    }
+
+    public async Task<List<CustomerEntity>> SearchCustomersAsync(string searchTerm, Guid userId, CancellationToken ctx)
+    {
+        try
+        {
+            var pipeline = new[]
+            {
+                new BsonDocument("$lookup", new BsonDocument
+                {
+                    { "from", "Properties" },
+                    { "localField", "Properties" },
+                    { "foreignField", "_id" },
+                    { "as", "PropertyDetails" }
+                }),
+                new BsonDocument("$match", new BsonDocument("$and", new BsonArray
+                {
+                    new BsonDocument("UserOwnerId", userId),
+                    new BsonDocument("$or", new BsonArray
+                    {
+                        new BsonDocument("CustomerReferenceNumber", new BsonRegularExpression(searchTerm, "i")),
+                        new BsonDocument("FullName", new BsonRegularExpression(searchTerm, "i")),
+                        new BsonDocument("Emails.Email", new BsonRegularExpression(searchTerm, "i")),
+                        new BsonDocument("PhoneNumbers.PhoneNumber", new BsonRegularExpression(searchTerm, "i")),
+                        // This line assumes direct filtering on joined documents, which is kept for reference
+                        new BsonDocument("PropertyDetails.Property.Address", new BsonRegularExpression(searchTerm, "i"))
+                    })
+                })),
+                // Hypothetical projection to exclude PropertyDetails from the final output; adjust as needed
+                new BsonDocument("$project", new BsonDocument("PropertyDetails", 0))
+            };
+
+            var customers = await _dbContext.Customers.Aggregate<CustomerEntity>(pipeline, cancellationToken: ctx)
+                .ToListAsync(ctx);
+
+            return customers;
+        }
+        catch (Exception ex)
+        {
+            var temp = ex.Message;
+            return null;
+        }
     }
 }

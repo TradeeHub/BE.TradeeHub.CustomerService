@@ -14,4 +14,7 @@ public interface ICustomerRepository
     Task<(ObjectId Id, string CustomerReferenceNumber)> AddNewCustomerAsync(CustomerEntity customer,
         IList<PropertyEntity> properties,
         IList<CommentEntity> comments, CancellationToken ctx);
+
+    Task<List<CustomerEntity>> SearchCustomersAsync(string searchTerm,Guid userId, CancellationToken cancellationToken);
+
 }

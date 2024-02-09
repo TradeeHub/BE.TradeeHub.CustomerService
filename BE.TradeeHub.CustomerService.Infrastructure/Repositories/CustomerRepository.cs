@@ -1,5 +1,7 @@
+using System.Text.RegularExpressions;
 using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
+using BE.TradeeHub.CustomerService.Domain.Results;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -168,45 +170,64 @@ public class CustomerRepository : ICustomerRepository
         return $"CRN-{result.Counter}";
     }
 
-    public async Task<List<CustomerEntity>> SearchCustomersAsync(string searchTerm, Guid userId, CancellationToken ctx)
+    public async Task<CustomerPageResult> SearchCustomersAsync(string searchTerm, string? lastCursor, int pageSize,
+        Guid userId, CancellationToken ctx)
     {
         try
         {
+            var objectIdLastCursor = string.IsNullOrEmpty(lastCursor) ? (ObjectId?)null : new ObjectId(lastCursor);
+
+            // Search Filter Stage
+            var matchStage = new BsonDocument("$match", new BsonDocument("$and", new BsonArray
+            {
+                new BsonDocument("UserOwnerId", userId),
+                new BsonDocument("$or", new BsonArray
+                {
+                    new BsonDocument("CustomerReferenceNumber",
+                        new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
+                    new BsonDocument("FullName", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
+                    new BsonDocument("Emails.Email", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
+                    new BsonDocument("PhoneNumbers.PhoneNumber",
+                        new BsonRegularExpression(Regex.Escape(searchTerm), "i"))
+                })
+            }));
+
+            if (objectIdLastCursor != null)
+            {
+                matchStage["$match"]["$and"].AsBsonArray
+                    .Add(new BsonDocument("_id", new BsonDocument("$gt", objectIdLastCursor)));
+            }
+
             var pipeline = new[]
             {
-                new BsonDocument("$lookup", new BsonDocument
-                {
-                    { "from", "Properties" },
-                    { "localField", "Properties" },
-                    { "foreignField", "_id" },
-                    { "as", "PropertyDetails" }
-                }),
-                new BsonDocument("$match", new BsonDocument("$and", new BsonArray
-                {
-                    new BsonDocument("UserOwnerId", userId),
-                    new BsonDocument("$or", new BsonArray
-                    {
-                        new BsonDocument("CustomerReferenceNumber", new BsonRegularExpression(searchTerm, "i")),
-                        new BsonDocument("FullName", new BsonRegularExpression(searchTerm, "i")),
-                        new BsonDocument("Emails.Email", new BsonRegularExpression(searchTerm, "i")),
-                        new BsonDocument("PhoneNumbers.PhoneNumber", new BsonRegularExpression(searchTerm, "i")),
-                        // This line assumes direct filtering on joined documents, which is kept for reference
-                        new BsonDocument("PropertyDetails.Property.Address", new BsonRegularExpression(searchTerm, "i"))
-                    })
-                })),
-                // Hypothetical projection to exclude PropertyDetails from the final output; adjust as needed
-                new BsonDocument("$project", new BsonDocument("PropertyDetails", 0))
+                matchStage,
+                new BsonDocument("$sort", new BsonDocument("_id", 1)), // Ascending, good for cursors
+                new BsonDocument("$limit", pageSize + 1)
             };
 
             var customers = await _dbContext.Customers.Aggregate<CustomerEntity>(pipeline, cancellationToken: ctx)
                 .ToListAsync(ctx);
 
-            return customers;
+            // Pagination Logic
+            var hasNextPage = customers.Count > pageSize;
+            var returnedCustomers = hasNextPage ? customers.Take(pageSize).ToList() : customers;
+            var nextCursor = hasNextPage ? returnedCustomers.Last().Id.ToString() : null;
+
+            return new CustomerPageResult
+            {
+                Customers = returnedCustomers,
+                HasNextPage = hasNextPage,
+                NextCursor = nextCursor
+            };
         }
         catch (Exception ex)
         {
-            var temp = ex.Message;
-            return null;
+            return new CustomerPageResult
+            {
+                Customers = new List<CustomerEntity>(),
+                HasNextPage = false,
+                NextCursor = null
+            };
         }
     }
 }

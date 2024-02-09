@@ -1,4 +1,6 @@
 using BE.TradeeHub.CustomerService.Application.Interfaces;
+using BE.TradeeHub.CustomerService.Application.Requests;
+using BE.TradeeHub.CustomerService.Application.Responses;
 using BE.TradeeHub.CustomerService.Domain.Entities;
 using HotChocolate.Authorization;
 using HotChocolate.Data;
@@ -50,8 +52,7 @@ public class Query
             throw;
         }
     }
-
-
+    
     [UseFirstOrDefault]
     public static IExecutable<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
         ObjectId id, CancellationToken cancellationToken)
@@ -59,8 +60,8 @@ public class Query
         return collection.Find(x => x.Id == id).AsExecutable();
     }
     
-    public async Task<List<CustomerEntity>> SearchCustomersAsync([Service] ICustomerService customerService,[Service] UserContext userContext, string searchTerm, CancellationToken ctx)
+    public async Task<ReferenceTrackingResponse> SearchCustomerReferencesAsync([Service] ICustomerService customerService,[Service] UserContext userContext, SearchReferenceRequest request, CancellationToken ctx)
     {
-        return await customerService.SearchCustomersAsync(searchTerm, userContext.UserId, ctx);
+        return await customerService.SearchCustomersAsync(request, userContext.UserId, ctx);
     }
 }

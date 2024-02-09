@@ -8,6 +8,11 @@ type AddNewCustomerResponse {
   customerReferenceNumber: String!
 }
 
+type AddNewExternalReferenceResponse {
+  id: ID!
+  name: String!
+}
+
 type CommentEntity {
   id: ID!
   customerId: ID!
@@ -25,6 +30,9 @@ type CustomerEntity {
   comments: [CommentEntity]
   id: ID!
   userOwnerId: UUID!
+  customerType: String!
+  businessName: String
+  useBusinessName: Boolean!
   customerReferenceNumber: String
   title: String
   name: String
@@ -75,6 +83,7 @@ type LocationEntity {
 
 type Mutation {
   addNewCustomer(request: AddNewCustomerRequestInput!): AddNewCustomerResponse!
+  addNewExternalReference(request: AddNewExternalReferenceRequestInput!): AddNewExternalReferenceResponse!
 }
 
 "Information about pagination in a connection."
@@ -123,7 +132,22 @@ type PropertyEntity {
 type Query {
   customers("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String order_by: CustomerEntitySort where: CustomerEntityFilter): CustomersConnection @authorize
   customerById(id: ID!): CustomerEntity @authorize
-  searchCustomers(searchTerm: String!): [CustomerEntity!]!
+  searchCustomerReferences(request: SearchReferenceRequestInput!): ReferenceTrackingResponse!
+}
+
+type ReferenceResponse {
+  id: ID!
+  displayName: String!
+  phoneNumber: String
+  referenceType: ReferenceType!
+}
+
+type ReferenceTrackingResponse {
+  references: [ReferenceResponse!]!
+  customerHasNextPage: Boolean!
+  externalHasNextPage: Boolean!
+  customerNextCursor: String
+  externalNextCursor: String
 }
 
 type ViewportEntity {
@@ -146,6 +170,24 @@ input AddNewCustomerRequestInput {
   comment: String
 }
 
+input AddNewExternalReferenceRequestInput {
+  referenceType: String!
+  name: String!
+  companyName: String
+  phoneNumber: PhoneNumberRequestInput
+  email: EmailRequestInput
+  url: String
+  place: CustomerPlaceRequestInput
+  description: String
+  compensation: CompensationDetailsRequestInput
+}
+
+input CompensationDetailsRequestInput {
+  type: CompensationType!
+  amount: Decimal!
+  currency: String
+}
+
 input CustomerEntityFilter {
   AND: [CustomerEntityFilter!]
   OR: [CustomerEntityFilter!]
@@ -161,6 +203,28 @@ input CustomerEntityFilter {
   userOwnerId_not_lt: UUID
   userOwnerId_lte: UUID
   userOwnerId_not_lte: UUID
+  customerType: String
+  customerType_not: String
+  customerType_contains: String
+  customerType_not_contains: String
+  customerType_starts_with: String
+  customerType_not_starts_with: String
+  customerType_ends_with: String
+  customerType_not_ends_with: String
+  customerType_in: [String!]
+  customerType_not_in: [String!]
+  businessName: String
+  businessName_not: String
+  businessName_contains: String
+  businessName_not_contains: String
+  businessName_starts_with: String
+  businessName_not_starts_with: String
+  businessName_ends_with: String
+  businessName_not_ends_with: String
+  businessName_in: [String]
+  businessName_not_in: [String]
+  useBusinessName: Boolean
+  useBusinessName_not: Boolean
   customerReferenceNumber: String
   customerReferenceNumber_not: String
   customerReferenceNumber_contains: String
@@ -319,6 +383,9 @@ input CustomerEntityFilter {
 
 input CustomerEntitySort {
   userOwnerId: SortOperationKind
+  customerType: SortOperationKind
+  businessName: SortOperationKind
+  useBusinessName: SortOperationKind
   customerReferenceNumber: SortOperationKind
   title: SortOperationKind
   name: SortOperationKind
@@ -495,6 +562,15 @@ input PhoneNumberRequestInput {
   receiveNotifications: Boolean!
 }
 
+input SearchReferenceRequestInput {
+  searchTerm: String!
+  pageSize: Int!
+  customerHasNextPage: Boolean
+  externalHasNextPage: Boolean
+  customerNextCursor: String
+  externalNextCursor: String
+}
+
 input ViewportRequestInput {
   northeast: LocationRequestInput!
   southwest: LocationRequestInput!
@@ -514,6 +590,16 @@ enum CommentType {
   INVOICE
 }
 
+enum CompensationType {
+  ONE_TIME_FIXED
+  RECURRING_FIXED
+  ONE_TIME_PERCENTAGE
+  RECURRING_PERCENTAGE
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
 enum CustomerStatus {
   LEAD
   APPOINTMENT_SET
@@ -527,6 +613,11 @@ enum CustomerStatus {
   FOLLOW_UP_REQUIRED
   CLOSED_LOST
   COMPLETED
+}
+
+enum ReferenceType {
+  CUSTOMER
+  EXTERNAL
 }
 
 enum SortOperationKind {

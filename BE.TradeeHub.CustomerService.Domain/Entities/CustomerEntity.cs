@@ -8,15 +8,17 @@ public class CustomerEntity
 {
     [BsonId] public ObjectId Id { get; set; }
     public Guid UserOwnerId { get; set; }
+    public string CustomerType { get; set; } = null!;
+    public string? BusinessName { get; set; }
+    public bool UseBusinessName { get; set; }
     public string? CustomerReferenceNumber { get; set; }
     public string? Title { get; set; }
     public string? Name { get; set; }
     public string? Surname { get; set; }
-    
+
     public string? FullName { get; private set; }
     public string? Alias { get; set; }
-    [BsonRepresentation(BsonType.String)]
-    public CustomerStatus Status { get; set; }
+    [BsonRepresentation(BsonType.String)] public CustomerStatus Status { get; set; }
     public List<EmailEntity>? Emails { get; set; }
     public List<PhoneNumberEntity>? PhoneNumbers { get; set; }
     public List<ObjectId>? Properties { get; set; }
@@ -30,7 +32,9 @@ public class CustomerEntity
     public bool Archived { get; set; }
     public List<ObjectId>? Comments { get; set; }
 
-    public CustomerEntity(Guid userOwnerId, string? title, string? name, string? surname, string? alias, IEnumerable<string>? tags, Guid createdBy, IEnumerable<EmailEntity>? emails, IEnumerable<PhoneNumberEntity>? phoneNumbers)
+    public CustomerEntity(Guid userOwnerId, string? title, string? name, string? surname, string? alias,
+        IEnumerable<string>? tags, Guid createdBy, IEnumerable<EmailEntity>? emails,
+        IEnumerable<PhoneNumberEntity>? phoneNumbers)
     {
         UserOwnerId = userOwnerId;
         Title = title?.Trim();
@@ -41,11 +45,12 @@ public class CustomerEntity
         Tags = tags != null ? [..tags.Select(tag => tag.Trim())] : [];
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
-        Emails = emails?.Select(e => new EmailEntity(e.Email.Trim(), e.EmailType.Trim(), e.ReceiveNotifications)).ToList();
-        PhoneNumbers = phoneNumbers?.Select(p => new PhoneNumberEntity(p.PhoneNumber.Trim(), p.PhoneNumberType.Trim(), p.ReceiveNotifications)).ToList();
+        Emails = emails?.Select(e => new EmailEntity(e.Email.Trim(), e.EmailType.Trim(), e.ReceiveNotifications))
+            .ToList();
+        PhoneNumbers = phoneNumbers?.Select(p =>
+            new PhoneNumberEntity(p.PhoneNumber.Trim(), p.PhoneNumberType.Trim(), p.ReceiveNotifications)).ToList();
         Properties = new List<ObjectId>();
         Comments = new List<ObjectId>();
         FullName = $"{Title?.Trim()} {Name?.Trim()} {Surname?.Trim()}".Trim(); // This will trim the FullName as well
     }
-
 }

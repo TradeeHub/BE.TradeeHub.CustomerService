@@ -1,10 +1,13 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace BE.TradeeHub.CustomerService.Domain.Entities.Reference;
 
 public class ExternalReferenceEntity
 {
+    [BsonId]
     public ObjectId Id { get; set; }
+    public Guid UserOwnerId { get; set; }
     public string ReferenceType { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string? CompanyName { get; set; }

@@ -35,6 +35,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddScoped<IExternalReferenceRepository, ExternalReferenceRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();

@@ -1,4 +1,5 @@
 using BE.TradeeHub.CustomerService.Domain.Entities;
+using BE.TradeeHub.CustomerService.Domain.Entities.Reference;
 using BE.TradeeHub.CustomerService.Domain.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -27,6 +28,7 @@ public class MongoDbContext
     public IMongoCollection<CustomerReferenceNumberEntity> CustomerReferenceNumber => _database.GetCollection<CustomerReferenceNumberEntity>("Crns");
     public IMongoCollection<PropertyEntity> Properties => _database.GetCollection<PropertyEntity>("Properties");
     public IMongoCollection<CommentEntity> Comments => _database.GetCollection<CommentEntity>("Comments");
+    public IMongoCollection<ExternalReferenceEntity> ExternalReferences => _database.GetCollection<ExternalReferenceEntity>("ExternalReferences");
     
     private void CreateIndexes()
     {

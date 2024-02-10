@@ -9,8 +9,8 @@ public class CustomerEntity
     [BsonId] public ObjectId Id { get; set; }
     public Guid UserOwnerId { get; set; }
     public string CustomerType { get; set; } = null!;
-    public string? BusinessName { get; set; }
-    public bool UseBusinessName { get; set; }
+    public string? CompanyName { get; set; }
+    public bool UseCompanyName { get; set; }
     public string? CustomerReferenceNumber { get; set; }
     public string? Title { get; set; }
     public string? Name { get; set; }
@@ -27,16 +27,19 @@ public class CustomerEntity
     public Guid CreatedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
     public Guid? ModifiedBy { get; set; }
-    public ObjectId? CustomerReferenceEntityId { get; set; }
+    public ReferenceInfo? Reference{ get; set; }
     public decimal? CustomerRating { get; set; }
     public bool Archived { get; set; }
     public List<ObjectId>? Comments { get; set; }
 
-    public CustomerEntity(Guid userOwnerId, string? title, string? name, string? surname, string? alias,
+    public CustomerEntity(Guid userOwnerId, string? title, string? name, string? surname, string? alias, string customerType, string? companyName, bool useCompanyName, ObjectId? referenceId, ReferenceType? referenceType,
         IEnumerable<string>? tags, Guid createdBy, IEnumerable<EmailEntity>? emails,
         IEnumerable<PhoneNumberEntity>? phoneNumbers)
     {
         UserOwnerId = userOwnerId;
+        CustomerType = customerType.Trim();
+        CompanyName = companyName?.Trim();
+        UseCompanyName = useCompanyName;
         Title = title?.Trim();
         Name = name?.Trim();
         Surname = surname?.Trim();
@@ -45,6 +48,7 @@ public class CustomerEntity
         Tags = tags != null ? [..tags.Select(tag => tag.Trim())] : [];
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
+        Reference = referenceId != null && referenceType != null ? new ReferenceInfo(referenceId.Value, referenceType.Value) : null;
         Emails = emails?.Select(e => new EmailEntity(e.Email.Trim(), e.EmailType.Trim(), e.ReceiveNotifications))
             .ToList();
         PhoneNumbers = phoneNumbers?.Select(p =>

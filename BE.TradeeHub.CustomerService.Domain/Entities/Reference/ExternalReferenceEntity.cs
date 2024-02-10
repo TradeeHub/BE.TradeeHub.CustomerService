@@ -10,6 +10,7 @@ public class ExternalReferenceEntity
     public Guid UserOwnerId { get; set; }
     public string ReferenceType { get; set; } = null!;
     public string Name { get; set; } = null!;
+    public bool UseCompanyName { get; set; }
     public string? CompanyName { get; set; }
     public PhoneNumberEntity? PhoneNumber { get; set; }
     public EmailEntity? Email { get; set; }

@@ -1,10 +1,13 @@
-﻿namespace BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
+﻿using BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
+
+namespace BE.TradeeHub.CustomerService.Application.Requests;
 
 public class AddNewExternalReferenceRequest
 {
     public string ReferenceType { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string? CompanyName { get; set; }
+    public bool UseCompanyName { get; set; }
     public PhoneNumberRequest? PhoneNumber { get; set; }
     public EmailRequest? Email { get; set; }
     public string? Url { get; set; } = null!;

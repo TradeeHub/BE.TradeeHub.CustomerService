@@ -31,8 +31,8 @@ type CustomerEntity {
   id: ID!
   userOwnerId: UUID!
   customerType: String!
-  businessName: String
-  useBusinessName: Boolean!
+  companyName: String
+  useCompanyName: Boolean!
   customerReferenceNumber: String
   title: String
   name: String
@@ -47,7 +47,7 @@ type CustomerEntity {
   createdBy: UUID!
   modifiedAt: DateTime
   modifiedBy: UUID
-  customerReferenceEntityId: ID
+  reference: ReferenceInfo
   customerRating: Decimal
   archived: Boolean!
 }
@@ -135,6 +135,12 @@ type Query {
   searchCustomerReferences(request: SearchReferenceRequestInput!): ReferenceTrackingResponse!
 }
 
+type ReferenceInfo {
+  customerId: ID
+  externalReferenceId: ID
+  referenceType: ReferenceType!
+}
+
 type ReferenceResponse {
   id: ID!
   displayName: String!
@@ -160,13 +166,16 @@ input AddNewCustomerRequestInput {
   name: String
   surname: String
   alias: String
+  customerType: String!
+  companyName: String
+  useCompanyName: Boolean!
   emails: [EmailRequestInput!]
   phoneNumbers: [PhoneNumberRequestInput!]
   property: CustomerPlaceRequestInput
   isBillingAddress: Boolean!
   billing: CustomerPlaceRequestInput
   tags: [String!]
-  reference: ID
+  reference: LinkReferenceRequestInput
   comment: String
 }
 
@@ -174,6 +183,7 @@ input AddNewExternalReferenceRequestInput {
   referenceType: String!
   name: String!
   companyName: String
+  useCompanyName: Boolean!
   phoneNumber: PhoneNumberRequestInput
   email: EmailRequestInput
   url: String
@@ -213,18 +223,18 @@ input CustomerEntityFilter {
   customerType_not_ends_with: String
   customerType_in: [String!]
   customerType_not_in: [String!]
-  businessName: String
-  businessName_not: String
-  businessName_contains: String
-  businessName_not_contains: String
-  businessName_starts_with: String
-  businessName_not_starts_with: String
-  businessName_ends_with: String
-  businessName_not_ends_with: String
-  businessName_in: [String]
-  businessName_not_in: [String]
-  useBusinessName: Boolean
-  useBusinessName_not: Boolean
+  companyName: String
+  companyName_not: String
+  companyName_contains: String
+  companyName_not_contains: String
+  companyName_starts_with: String
+  companyName_not_starts_with: String
+  companyName_ends_with: String
+  companyName_not_ends_with: String
+  companyName_in: [String]
+  companyName_not_in: [String]
+  useCompanyName: Boolean
+  useCompanyName_not: Boolean
   customerReferenceNumber: String
   customerReferenceNumber_not: String
   customerReferenceNumber_contains: String
@@ -361,6 +371,7 @@ input CustomerEntityFilter {
   modifiedBy_not_lt: UUID
   modifiedBy_lte: UUID
   modifiedBy_not_lte: UUID
+  reference: ReferenceInfoFilter
   customerRating: Decimal
   customerRating_not: Decimal
   customerRating_in: [Decimal]
@@ -384,8 +395,8 @@ input CustomerEntityFilter {
 input CustomerEntitySort {
   userOwnerId: SortOperationKind
   customerType: SortOperationKind
-  businessName: SortOperationKind
-  useBusinessName: SortOperationKind
+  companyName: SortOperationKind
+  useCompanyName: SortOperationKind
   customerReferenceNumber: SortOperationKind
   title: SortOperationKind
   name: SortOperationKind
@@ -397,6 +408,7 @@ input CustomerEntitySort {
   createdBy: SortOperationKind
   modifiedAt: SortOperationKind
   modifiedBy: SortOperationKind
+  reference: ReferenceInfoSort
   customerRating: SortOperationKind
   archived: SortOperationKind
 }
@@ -457,6 +469,11 @@ input ISingleFilterOfStringFilter {
   element_not_ends_with: String
   element_in: [String!]
   element_not_in: [String!]
+}
+
+input LinkReferenceRequestInput {
+  id: ID!
+  referenceType: ReferenceType!
 }
 
 input LocationRequestInput {
@@ -560,6 +577,27 @@ input PhoneNumberRequestInput {
   phoneNumberType: String!
   phoneNumber: String!
   receiveNotifications: Boolean!
+}
+
+input ReferenceInfoFilter {
+  AND: [ReferenceInfoFilter!]
+  OR: [ReferenceInfoFilter!]
+  referenceType: ReferenceType
+  referenceType_not: ReferenceType
+  referenceType_in: [ReferenceType!]
+  referenceType_not_in: [ReferenceType!]
+  referenceType_gt: ReferenceType
+  referenceType_not_gt: ReferenceType
+  referenceType_gte: ReferenceType
+  referenceType_not_gte: ReferenceType
+  referenceType_lt: ReferenceType
+  referenceType_not_lt: ReferenceType
+  referenceType_lte: ReferenceType
+  referenceType_not_lte: ReferenceType
+}
+
+input ReferenceInfoSort {
+  referenceType: SortOperationKind
 }
 
 input SearchReferenceRequestInput {

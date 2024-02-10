@@ -62,6 +62,6 @@ public class Query
     
     public async Task<ReferenceTrackingResponse> SearchCustomerReferencesAsync([Service] ICustomerService customerService,[Service] UserContext userContext, SearchReferenceRequest request, CancellationToken ctx)
     {
-        return await customerService.SearchCustomersAsync(request, userContext.UserId, ctx);
+        return await customerService.SearchForPotentialReferencesAsync(request, userContext.UserId, ctx);
     }
 }

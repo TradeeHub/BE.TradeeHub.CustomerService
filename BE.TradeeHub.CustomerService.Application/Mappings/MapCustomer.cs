@@ -1,4 +1,5 @@
-﻿using BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
+﻿using BE.TradeeHub.CustomerService.Application.Requests;
+using BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
 using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Entities.Reference;
 
@@ -21,6 +22,11 @@ public static class AddNewCustomerRequestExtensions
             name: request.Name,
             surname: request.Surname,
             alias: request.Alias,
+            customerType: request.CustomerType,
+            companyName: request.CompanyName,
+            useCompanyName: request.UseCompanyName,
+            referenceId: request.Reference?.Id,
+            referenceType: request.Reference?.ReferenceType,
             tags: request.Tags,
             createdBy: createdBy,
             emails: emails,
@@ -87,6 +93,7 @@ public static class AddNewCustomerRequestExtensions
 
         return placeEntity;
     }
+    
 
     public static ExternalReferenceEntity ToExternalReferenceEntity(this AddNewExternalReferenceRequest request,
         Guid userOwnerId)
@@ -97,6 +104,7 @@ public static class AddNewCustomerRequestExtensions
             ReferenceType = request.ReferenceType,
             Name = request.Name,
             CompanyName = request.CompanyName,
+            UseCompanyName = request.UseCompanyName,
             PhoneNumber = request.PhoneNumber != null
                 ? new PhoneNumberEntity(request.PhoneNumber.PhoneNumber, request.PhoneNumber.PhoneNumberType,
                     request.PhoneNumber.ReceiveNotifications)

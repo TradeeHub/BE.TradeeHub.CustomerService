@@ -186,7 +186,9 @@ public class CustomerRepository : ICustomerRepository
                     new BsonDocument("CustomerReferenceNumber", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
                     new BsonDocument("FullName", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
                     new BsonDocument("Emails.Email", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
-                    new BsonDocument("PhoneNumbers.PhoneNumber", new BsonRegularExpression(Regex.Escape(searchTerm), "i"))
+                    new BsonDocument("PhoneNumbers.PhoneNumber", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
+                    new BsonDocument("CompanyName", new BsonRegularExpression(Regex.Escape(searchTerm), "i"))
+
                 })
             }));
 

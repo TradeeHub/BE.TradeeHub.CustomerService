@@ -102,6 +102,8 @@ builder.Services
     .AddType<CustomerType>()
     .AddType<PropertyType>()
     .AddType<CommentType>()
+    .AddType<ReferenceInfoType>()
+    .AddType<ExternalReferenceType>()
     .AddMongoDbSorting()
     .AddMongoDbProjections()
     .AddMongoDbPagingProviders()

@@ -16,10 +16,10 @@ public class CustomerRepository : ICustomerRepository
         _dbContext = dbContext;
     }
 
-    public async Task<CustomerEntity> GetCustomerByIdAsync(ObjectId customerId)
+    public async Task<CustomerEntity?> GetCustomerByIdAsync(ObjectId customerId, CancellationToken ctx)
     {
         var filter = Builders<CustomerEntity>.Filter.Eq(c => c.Id, customerId);
-        var customer = await _dbContext.Customers.Find(filter).FirstOrDefaultAsync();
+        var customer = await _dbContext.Customers.Find(filter).FirstOrDefaultAsync(ctx);
         return customer;
     }
 

@@ -25,6 +25,12 @@ type CommentEntity {
   commentType: CommentType!
 }
 
+type CompensationDetailsEntity {
+  compensationType: CompensationType!
+  amount: Decimal!
+  currency: String
+}
+
 type CustomerEntity {
   properties: [PropertyEntity]
   comments: [CommentEntity]
@@ -76,14 +82,29 @@ type EmailEntity {
   receiveNotifications: Boolean!
 }
 
+type ExternalReferenceEntity {
+  id: ID!
+  userOwnerId: UUID!
+  referenceType: String!
+  name: String!
+  useCompanyName: Boolean!
+  companyName: String
+  phoneNumber: PhoneNumberEntity
+  email: EmailEntity
+  url: String
+  place: PlaceEntity
+  description: String
+  compensation: CompensationDetailsEntity
+}
+
 type LocationEntity {
   lat: Decimal!
   lng: Decimal!
 }
 
 type Mutation {
-  addNewCustomer(request: AddNewCustomerRequestInput!): AddNewCustomerResponse!
-  addNewExternalReference(request: AddNewExternalReferenceRequestInput!): AddNewExternalReferenceResponse!
+  addNewCustomer(request: AddNewCustomerRequestInput!): AddNewCustomerResponse! @authorize
+  addNewExternalReference(request: AddNewExternalReferenceRequestInput!): AddNewExternalReferenceResponse! @authorize
 }
 
 "Information about pagination in a connection."
@@ -132,12 +153,12 @@ type PropertyEntity {
 type Query {
   customers("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String order_by: CustomerEntitySort where: CustomerEntityFilter): CustomersConnection @authorize
   customerById(id: ID!): CustomerEntity @authorize
-  searchCustomerReferences(request: SearchReferenceRequestInput!): ReferenceTrackingResponse!
+  searchCustomerReferences(request: SearchReferenceRequestInput!): ReferenceTrackingResponse! @authorize
 }
 
 type ReferenceInfo {
-  customerId: ID
-  externalReferenceId: ID
+  externalReference: ExternalReferenceEntity
+  customer: CustomerEntity
   referenceType: ReferenceType!
 }
 

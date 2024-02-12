@@ -25,6 +25,8 @@ public class Query
 
         return executableQuery;
     }
+    
+    [Authorize]
     [UsePaging]
     [UseProjection]
     [HotChocolate.Types.UseSorting]
@@ -53,6 +55,7 @@ public class Query
         }
     }
     
+    [Authorize]
     [UseFirstOrDefault]
     public static IExecutable<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
         ObjectId id, CancellationToken cancellationToken)
@@ -60,6 +63,7 @@ public class Query
         return collection.Find(x => x.Id == id).AsExecutable();
     }
     
+    [Authorize]
     public async Task<ReferenceTrackingResponse> SearchCustomerReferencesAsync([Service] ICustomerService customerService,[Service] UserContext userContext, SearchReferenceRequest request, CancellationToken ctx)
     {
         return await customerService.SearchForPotentialReferencesAsync(request, userContext.UserId, ctx);

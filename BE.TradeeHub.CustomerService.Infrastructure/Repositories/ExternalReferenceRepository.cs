@@ -23,6 +23,13 @@ public class ExternalReferenceRepository : IExternalReferenceRepository
 
         return (externalReference.Id, externalReference.Name);
     }
+    
+    public async Task<ExternalReferenceEntity?> GetExternalReferenceByIdAsync(ObjectId id, CancellationToken cancellationToken)
+    {
+        var filter = Builders<ExternalReferenceEntity>.Filter.Eq(er => er.Id, id);
+        var result = await _dbContext.ExternalReferences.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        return result;
+    }
 
     public async Task<ExternalReferencePageResult> SearchExternalReferencesAsync(string searchTerm, string? lastCursor,
         int pageSize, Guid userId, CancellationToken ctx)

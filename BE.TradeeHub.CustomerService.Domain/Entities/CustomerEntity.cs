@@ -27,7 +27,7 @@ public class CustomerEntity
     public Guid CreatedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
     public Guid? ModifiedBy { get; set; }
-    public ReferenceInfo? Reference{ get; set; }
+    public ReferenceInfoEntity? Reference{ get; set; }
     public decimal? CustomerRating { get; set; }
     public bool Archived { get; set; }
     public List<ObjectId>? Comments { get; set; }
@@ -48,7 +48,7 @@ public class CustomerEntity
         Tags = tags != null ? [..tags.Select(tag => tag.Trim())] : [];
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
-        Reference = referenceId != null && referenceType != null ? new ReferenceInfo(referenceId.Value, referenceType.Value) : null;
+        Reference = referenceId != null && referenceType != null ? new ReferenceInfoEntity(referenceId.Value, referenceType.Value) : null;
         Emails = emails?.Select(e => new EmailEntity(e.Email.Trim(), e.EmailType.Trim(), e.ReceiveNotifications))
             .ToList();
         PhoneNumbers = phoneNumbers?.Select(p =>

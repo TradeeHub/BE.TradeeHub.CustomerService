@@ -41,8 +41,8 @@ type CustomerEntity implements Node {
   properties: [PropertyEntity]
   comments: [CommentEntity]
   owner: UserEntity!
-  userCreator: UserEntity!
-  userModifier: UserEntity
+  creator: UserEntity!
+  modifier: UserEntity
   customerType: String!
   companyName: String
   useCompanyName: Boolean!

@@ -36,8 +36,8 @@ public class CustomerEntity
     public bool Archived { get; set; }
     public List<ObjectId>? Comments { get; set; }
     public UserEntity Owner() => new UserEntity { Id = UserOwnerId };
-    public UserEntity UserCreator() => new UserEntity { Id = CreatedBy };
-    public UserEntity? UserModifier() => ModifiedBy.HasValue ? new UserEntity { Id = ModifiedBy.Value } : null;
+    public UserEntity Creator () => new UserEntity { Id = CreatedBy };
+    public UserEntity? Modifier () => ModifiedBy.HasValue ? new UserEntity { Id = ModifiedBy.Value } : null;
 
     public CustomerEntity()
     {

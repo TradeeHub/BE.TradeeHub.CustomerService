@@ -43,7 +43,6 @@ type CustomerEntity implements Node {
   owner: UserEntity!
   userCreator: UserEntity!
   userModifier: UserEntity
-  userOwnerId: UUID!
   customerType: String!
   companyName: String
   useCompanyName: Boolean!
@@ -58,9 +57,7 @@ type CustomerEntity implements Node {
   phoneNumbers: [PhoneNumberEntity!]
   tags: [String!]
   createdAt: DateTime!
-  createdBy: UUID!
   modifiedAt: DateTime
-  modifiedBy: UUID
   reference: ReferenceInfoEntity
   customerRating: Decimal
   archived: Boolean!

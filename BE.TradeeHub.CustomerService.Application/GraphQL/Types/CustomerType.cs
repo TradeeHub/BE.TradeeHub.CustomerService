@@ -7,6 +7,8 @@ public class CustomerType : ObjectType<CustomerEntity>
 {
     protected override void Configure(IObjectTypeDescriptor<CustomerEntity> descriptor)
     {
+        descriptor.Field(c => c.Id).ID();
+
         descriptor.Field(c => c.Properties)
             .ResolveWith<TypeResolver>(r => r.GetCustomerProperties(default!, default!, default!))
             .Type<ListType<PropertyType>>();

@@ -4,6 +4,7 @@ using BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
 using BE.TradeeHub.CustomerService.Application.GraphQL.QueryResolvers;
 using BE.TradeeHub.CustomerService.Application.GraphQL.Types;
+using BE.TradeeHub.CustomerService.Application.GraphQL.Types.Subgraph;
 using BE.TradeeHub.CustomerService.Application.Interfaces;
 using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Interfaces;
@@ -91,6 +92,8 @@ builder.Services.AddAuthorization();
 
 builder.Services
     .AddGraphQLServer()
+    .AddGlobalObjectIdentification()
+    .AddProjections()
     .AddAuthorization()
     .AddDataLoader<CustomerPropertiesDataLoader>()
     .AddDataLoader<CustomerCommentsDataLoader>()
@@ -102,6 +105,7 @@ builder.Services
     .AddType<CustomerType>()
     .AddType<PropertyType>()
     .AddType<CommentType>()
+    .AddType<UserType>()
     .AddType<ReferenceInfoType>()
     .AddType<ExternalReferenceType>()
     .AddMongoDbSorting()

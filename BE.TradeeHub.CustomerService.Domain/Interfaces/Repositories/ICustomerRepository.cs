@@ -6,7 +6,9 @@ namespace BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
 
 public interface ICustomerRepository
 {
+    Task<CustomerEntity?> GetCustomerByIdAsync(Guid userId, ObjectId customerId, CancellationToken ctx);
     Task<CustomerEntity?> GetCustomerByIdAsync(ObjectId customerId, CancellationToken ctx);
+
     Task<IEnumerable<CustomerEntity>> GetAllCustomersAsync();
     Task<IEnumerable<CustomerEntity>> GetCustomersByPropertyIdAsync(ObjectId propertyId);
     Task<IEnumerable<CustomerEntity>> GetCustomersByNameAsync(string name);

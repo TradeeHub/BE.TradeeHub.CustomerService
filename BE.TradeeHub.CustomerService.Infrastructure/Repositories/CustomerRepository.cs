@@ -16,13 +16,23 @@ public class CustomerRepository : ICustomerRepository
         _dbContext = dbContext;
     }
 
+    public async Task<CustomerEntity?> GetCustomerByIdAsync(Guid userId, ObjectId customerId, CancellationToken ctx)
+    {
+        var userOwnerFilter = Builders<CustomerEntity>.Filter.Eq(c => c.UserOwnerId, userId);
+        var customerIdFilter = Builders<CustomerEntity>.Filter.Eq(c => c.Id, customerId);
+        var combinedFilter = Builders<CustomerEntity>.Filter.And(userOwnerFilter, customerIdFilter);
+
+        var customer = await _dbContext.Customers.Find(combinedFilter).FirstOrDefaultAsync(ctx);
+        return customer;
+    }
+
     public async Task<CustomerEntity?> GetCustomerByIdAsync(ObjectId customerId, CancellationToken ctx)
     {
         var filter = Builders<CustomerEntity>.Filter.Eq(c => c.Id, customerId);
         var customer = await _dbContext.Customers.Find(filter).FirstOrDefaultAsync(ctx);
         return customer;
     }
-
+    
     public async Task<IEnumerable<CustomerEntity>> GetAllCustomersAsync()
     {
         return await _dbContext.Customers.Find(_ => true).ToListAsync();

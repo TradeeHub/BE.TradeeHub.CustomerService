@@ -25,7 +25,7 @@ public class Query
 
         return executableQuery;
     }
-    
+
     [Authorize]
     [UsePaging]
     [UseProjection]
@@ -40,21 +40,25 @@ public class Query
 
     [Authorize]
     [UseFirstOrDefault]
-    public IExecutable<CustomerEntity> GetCustomerById([Service] IMongoCollection<CustomerEntity> collection, [Service] UserContext userContext, ObjectId id, CancellationToken cancellationToken)
+    public IExecutable<CustomerEntity> GetCustomerById([Service] IMongoCollection<CustomerEntity> collection,
+        [Service] UserContext userContext, ObjectId id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var query = collection.Find(x => x.Id == id && x.UserOwnerId == userContext.UserId).AsExecutable();
+        var query = collection.Find(x => x.Id == id && x.UserOwnerId == userContext.UserId).AsExecutable();
 
-            return query;
-        }
-        catch (Exception e)
-        {
-            var temp = e.Message;
-            throw;
-        }
+        return query;
     }
-    
+
+    [Authorize]
+    [NodeResolver]
+    public async Task<CustomerEntity?> GetCustomer([Service] IMongoCollection<CustomerEntity> collection,
+        [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
+    {
+        var idFilter = Builders<CustomerEntity>.Filter.Eq(x => x.Id, id);
+        var ownerFilter = Builders<CustomerEntity>.Filter.Eq(x => x.UserOwnerId, userContext.UserId);
+        var combinedFilter = Builders<CustomerEntity>.Filter.And(ownerFilter, idFilter);
+        return await collection.Find(combinedFilter).FirstOrDefaultAsync(ctx);
+    }
+
     [Authorize]
     [UseFirstOrDefault]
     public static IExecutable<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
@@ -62,9 +66,11 @@ public class Query
     {
         return collection.Find(x => x.Id == id).AsExecutable();
     }
-    
+
     [Authorize]
-    public async Task<ReferenceTrackingResponse> SearchCustomerReferencesAsync([Service] ICustomerService customerService,[Service] UserContext userContext, SearchReferenceRequest request, CancellationToken ctx)
+    public async Task<ReferenceTrackingResponse> SearchCustomerReferencesAsync(
+        [Service] ICustomerService customerService, [Service] UserContext userContext, SearchReferenceRequest request,
+        CancellationToken ctx)
     {
         return await customerService.SearchForPotentialReferencesAsync(request, userContext.UserId, ctx);
     }

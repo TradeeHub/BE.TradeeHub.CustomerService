@@ -6,6 +6,7 @@ using BE.TradeeHub.CustomerService.Application.Responses;
 using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Enums;
 using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
+using MongoDB.Bson;
 
 namespace BE.TradeeHub.CustomerService.Application;
 
@@ -116,5 +117,10 @@ public class CustomerService : ICustomerService
         };
 
         return response;
+    }
+    
+    public async Task<CustomerEntity?> GetCustomerByIdAsync(Guid userId, ObjectId customerId, CancellationToken ctx)
+    {
+        return await _customerRepository.GetCustomerByIdAsync(userId, customerId, ctx);
     }
 }

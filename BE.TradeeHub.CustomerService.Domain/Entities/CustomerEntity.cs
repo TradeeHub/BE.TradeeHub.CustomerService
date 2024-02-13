@@ -1,4 +1,6 @@
 using BE.TradeeHub.CustomerService.Domain.Enums;
+using BE.TradeeHub.CustomerService.Domain.SubgraphEntities;
+using HotChocolate.Types.Relay;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -6,7 +8,9 @@ namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
 public class CustomerEntity
 {
-    [BsonId] public ObjectId Id { get; set; }
+    [ID]
+    [BsonId] 
+    public ObjectId Id { get; set; }
     public Guid UserOwnerId { get; set; }
     public string CustomerType { get; set; } = null!;
     public string? CompanyName { get; set; }
@@ -27,12 +31,21 @@ public class CustomerEntity
     public Guid CreatedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
     public Guid? ModifiedBy { get; set; }
-    public ReferenceInfoEntity? Reference{ get; set; }
+    public ReferenceInfoEntity? Reference { get; set; }
     public decimal? CustomerRating { get; set; }
     public bool Archived { get; set; }
     public List<ObjectId>? Comments { get; set; }
+    public UserEntity Owner() => new UserEntity { Id = UserOwnerId };
+    public UserEntity UserCreator() => new UserEntity { Id = CreatedBy };
+    public UserEntity? UserModifier() => ModifiedBy.HasValue ? new UserEntity { Id = ModifiedBy.Value } : null;
 
-    public CustomerEntity(Guid userOwnerId, string? title, string? name, string? surname, string? alias, string customerType, string? companyName, bool useCompanyName, ObjectId? referenceId, ReferenceType? referenceType,
+    public CustomerEntity()
+    {
+    }
+    
+    public CustomerEntity(Guid userOwnerId, string? title, string? name, string? surname, string? alias,
+        string customerType, string? companyName, bool useCompanyName, ObjectId? referenceId,
+        ReferenceType? referenceType,
         IEnumerable<string>? tags, Guid createdBy, IEnumerable<EmailEntity>? emails,
         IEnumerable<PhoneNumberEntity>? phoneNumbers)
     {
@@ -48,7 +61,9 @@ public class CustomerEntity
         Tags = tags != null ? [..tags.Select(tag => tag.Trim())] : [];
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
-        Reference = referenceId != null && referenceType != null ? new ReferenceInfoEntity(referenceId.Value, referenceType.Value) : null;
+        Reference = referenceId != null && referenceType != null
+            ? new ReferenceInfoEntity(referenceId.Value, referenceType.Value)
+            : null;
         Emails = emails?.Select(e => new EmailEntity(e.Email.Trim(), e.EmailType.Trim(), e.ReceiveNotifications))
             .ToList();
         PhoneNumbers = phoneNumbers?.Select(p =>

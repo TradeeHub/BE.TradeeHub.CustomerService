@@ -6,6 +6,10 @@ public class PhoneNumberEntity
     public string PhoneNumber { get; set; } = null!;
     public bool ReceiveNotifications { get; set; }
     
+    public PhoneNumberEntity()
+    {
+    }
+    
     public PhoneNumberEntity(string phoneNumber, string phoneNumberType, bool receiveNotifications)
     {
         PhoneNumber = phoneNumber;

@@ -11,6 +11,9 @@ public class ReferenceInfoEntity
     [BsonRepresentation(BsonType.String)] 
     public ReferenceType ReferenceType { get; set; }
     
+    public ReferenceInfoEntity()
+    {
+    }
     public ReferenceInfoEntity(ObjectId referenceId, ReferenceType referenceType)
     {
         Customer = referenceType == ReferenceType.Customer ? referenceId : null;

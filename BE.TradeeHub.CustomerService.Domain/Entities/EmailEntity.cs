@@ -6,6 +6,10 @@
         public string Email { get; set; } = null!;
         public bool ReceiveNotifications { get; set; }
         
+        public EmailEntity()
+        {
+        }
+        
         public EmailEntity(string email, string emailType, bool receiveNotifications)
         {
             Email = email;

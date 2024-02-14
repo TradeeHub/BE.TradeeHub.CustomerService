@@ -17,6 +17,10 @@ public class PropertyEntity
     public DateTime? ModifiedAt { get; set; }
     public Guid? ModifiedBy { get; set; }
     
+    public PropertyEntity()
+    {
+    }
+    
     public PropertyEntity(Guid userOwnerId, PlaceEntity property, PlaceEntity? billing, Guid createdBy, bool isBillingAddress)
     {
         UserOwnerId = userOwnerId;

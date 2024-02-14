@@ -93,7 +93,6 @@ builder.Services.AddAuthorization();
 builder.Services
     .AddGraphQLServer()
     .AddGlobalObjectIdentification()
-    .AddProjections()
     .AddAuthorization()
     .AddDataLoader<CustomerPropertiesDataLoader>()
     .AddDataLoader<CustomerCommentsDataLoader>()

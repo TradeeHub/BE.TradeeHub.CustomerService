@@ -19,11 +19,19 @@ public class Query
     public IExecutable<CustomerEntity> GetCustomers([Service] IMongoCollection<CustomerEntity> collection,
         [Service] UserContext userContext, CancellationToken cancellationToken)
     {
-        var sortDefinition = Builders<CustomerEntity>.Sort.Descending(x => x.ModifiedAt).Descending(x => x.CreatedAt);
-        var query = collection.Find(x => x.UserOwnerId == userContext.UserId).Sort(sortDefinition);
-        var executableQuery = query.AsExecutable();
+        try
+        {
+            var sortDefinition = Builders<CustomerEntity>.Sort.Descending(x => x.ModifiedAt)
+                .Descending(x => x.CreatedAt);
+            var query = collection.Find(x => x.UserOwnerId == userContext.UserId).Sort(sortDefinition);
+            var executableQuery = query.AsExecutable();
 
-        return executableQuery;
+            return executableQuery;
+        }
+        catch(Exception e)
+        {
+            throw new Exception("Error while fetching customers", e);
+        }
     }
 
     [Authorize]

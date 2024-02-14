@@ -141,18 +141,18 @@ type PlaceEntity {
 }
 
 type PropertyEntity {
+  id: ID!
   "The customers associated with this property."
   customers: [CustomerEntity]
-  id: ID!
-  userOwnerId: UUID!
+  owner: UserEntity!
+  creator: UserEntity!
+  modifier: UserEntity
   property: PlaceEntity!
   billing: PlaceEntity
   quotes: [ID!]
   jobs: [ID!]
   createdAt: DateTime!
-  createdBy: UUID!
   modifiedAt: DateTime
-  modifiedBy: UUID
 }
 
 type Query {
@@ -163,6 +163,7 @@ type Query {
   customers("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String order_by: CustomerEntitySort where: CustomerEntityFilter): CustomersConnection @authorize
   customerById(id: ID!): CustomerEntity @authorize
   customer(id: ID!): CustomerEntity @authorize
+  propertyById(id: ID!): PropertyEntity @authorize
   searchCustomerReferences(request: SearchReferenceRequestInput!): ReferenceTrackingResponse! @authorize
 }
 

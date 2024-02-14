@@ -11,6 +11,12 @@ public class PropertyType : ObjectType<PropertyEntity>
 {
     protected override void Configure(IObjectTypeDescriptor<PropertyEntity> descriptor)
     {
+        descriptor.Field(c => c.Id).ID();
+
+        descriptor.Ignore(x=>x.UserOwnerId);
+        descriptor.Ignore(x=>x.CreatedBy);
+        descriptor.Ignore(x=>x.ModifiedBy);
+
         descriptor.Field(p => p.Customers)
             .ResolveWith<TypeResolver>(r => r.GetPropertyCustomers(default!, default!))
             .Type<ListType<CustomerType>>()

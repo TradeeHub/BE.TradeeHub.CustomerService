@@ -1,3 +1,5 @@
+using BE.TradeeHub.CustomerService.Domain.SubgraphEntities;
+using HotChocolate.Types.Relay;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -5,6 +7,7 @@ namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
 public class PropertyEntity
 {
+    [ID]
     [BsonId] public ObjectId Id { get; set; }
     public Guid UserOwnerId { get; set; }
     public PlaceEntity Property { get; set; } = null!;
@@ -16,6 +19,9 @@ public class PropertyEntity
     public Guid CreatedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
     public Guid? ModifiedBy { get; set; }
+    public UserEntity Owner() => new UserEntity { Id = UserOwnerId };
+    public UserEntity Creator () => new UserEntity { Id = CreatedBy };
+    public UserEntity? Modifier () => ModifiedBy.HasValue ? new UserEntity { Id = ModifiedBy.Value } : null;
     
     public PropertyEntity()
     {

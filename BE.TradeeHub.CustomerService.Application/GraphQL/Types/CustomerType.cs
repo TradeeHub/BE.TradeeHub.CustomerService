@@ -8,6 +8,7 @@ public class CustomerType : ObjectType<CustomerEntity>
     protected override void Configure(IObjectTypeDescriptor<CustomerEntity> descriptor)
     {
         descriptor.Field(c => c.Id).ID();
+        
         descriptor.Ignore(x=>x.UserOwnerId);
         descriptor.Ignore(x=>x.CreatedBy);
         descriptor.Ignore(x=>x.ModifiedBy);

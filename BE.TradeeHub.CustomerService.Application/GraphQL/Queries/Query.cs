@@ -69,10 +69,13 @@ public class Query
 
     [Authorize]
     [UseFirstOrDefault]
-    public static IExecutable<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
-        ObjectId id, CancellationToken cancellationToken)
+    public async Task<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
+        [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
     {
-        return collection.Find(x => x.Id == id).AsExecutable();
+        var idFilter = Builders<PropertyEntity>.Filter.Eq(x => x.Id, id);
+        var ownerFilter = Builders<PropertyEntity>.Filter.Eq(x => x.UserOwnerId, userContext.UserId);
+        var combinedFilter = Builders<PropertyEntity>.Filter.And(ownerFilter, idFilter);
+        return await collection.Find(combinedFilter).FirstOrDefaultAsync(ctx);
     }
 
     [Authorize]

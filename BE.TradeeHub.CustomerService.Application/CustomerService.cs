@@ -22,7 +22,7 @@ public class CustomerService : ICustomerService
         _customerRepository = customerRepository;
     }
 
-    public async Task<AddNewCustomerResponse> AddNewCustomerAsync(UserContext userContext,
+    public async Task<CustomerEntity> AddNewCustomerAsync(UserContext userContext,
         AddNewCustomerRequest request,
         CancellationToken ctx)
     {
@@ -36,11 +36,7 @@ public class CustomerService : ICustomerService
         var (id, customerReferenceNumber) =
             await _customerRepository.AddNewCustomerAsync(customerEntity, propertyEntities, comments, ctx);
 
-        return new AddNewCustomerResponse
-        {
-            Id = id,
-            CustomerReferenceNumber = customerReferenceNumber
-        };
+        return new CustomerEntity() { Id = id, CustomerReferenceNumber = customerReferenceNumber };
     }
 
     public async Task<ReferenceTrackingResponse> SearchForPotentialReferencesAsync(SearchReferenceRequest request,
@@ -71,7 +67,8 @@ public class CustomerService : ICustomerService
         references.AddRange(externalResults.ExternalReferences.Select(e => new ReferenceResponse
         {
             Id = e.Id,
-            DisplayName = $"External | " + (e.UseCompanyName && !string.IsNullOrEmpty(e.CompanyName) ? e.CompanyName : e.Name),
+            DisplayName = $"External | " +
+                          (e.UseCompanyName && !string.IsNullOrEmpty(e.CompanyName) ? e.CompanyName : e.Name),
             PhoneNumber = e.PhoneNumber?.PhoneNumber,
             ReferenceType = ReferenceType.External
         }));
@@ -99,7 +96,7 @@ public class CustomerService : ICustomerService
 
         return response;
     }
-    
+
     public async Task<AddNewExternalReferenceResponse> AddNewExternalReferenceAsync(UserContext userContext,
         AddNewExternalReferenceRequest request, CancellationToken ctx)
     {
@@ -116,7 +113,7 @@ public class CustomerService : ICustomerService
 
         return response;
     }
-    
+
     public async Task<CustomerEntity?> GetCustomerByIdAsync(Guid userId, ObjectId customerId, CancellationToken ctx)
     {
         return await _customerRepository.GetCustomerByIdAsync(userId, customerId, ctx);

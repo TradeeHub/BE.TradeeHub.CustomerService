@@ -8,11 +8,6 @@ interface Node {
   id: ID!
 }
 
-type AddNewCustomerResponse {
-  id: ID!
-  customerReferenceNumber: String!
-}
-
 type AddNewExternalReferenceResponse {
   id: ID!
   name: String!
@@ -108,7 +103,7 @@ type LocationEntity {
 }
 
 type Mutation {
-  addNewCustomer(request: AddNewCustomerRequestInput!): AddNewCustomerResponse! @authorize
+  addNewCustomer(request: AddNewCustomerRequestInput!): CustomerEntity! @authorize
   addNewExternalReference(request: AddNewExternalReferenceRequestInput!): AddNewExternalReferenceResponse! @authorize
 }
 

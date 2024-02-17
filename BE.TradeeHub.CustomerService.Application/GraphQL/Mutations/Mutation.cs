@@ -2,6 +2,7 @@ using BE.TradeeHub.CustomerService.Application.Interfaces;
 using BE.TradeeHub.CustomerService.Application.Requests;
 using BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
 using BE.TradeeHub.CustomerService.Application.Responses;
+using BE.TradeeHub.CustomerService.Domain.Entities;
 using HotChocolate.Authorization;
 
 namespace BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
@@ -9,7 +10,7 @@ namespace BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
 public class Mutation
 {
     [Authorize]
-    public async Task<AddNewCustomerResponse> AddNewCustomerAsync([Service] ICustomerService customerService, [Service] UserContext userContext, AddNewCustomerRequest request, CancellationToken ctx)
+    public async Task<CustomerEntity> AddNewCustomerAsync([Service] ICustomerService customerService, [Service] UserContext userContext, AddNewCustomerRequest request, CancellationToken ctx)
     {
         return await customerService.AddNewCustomerAsync(userContext, request, ctx);
     }

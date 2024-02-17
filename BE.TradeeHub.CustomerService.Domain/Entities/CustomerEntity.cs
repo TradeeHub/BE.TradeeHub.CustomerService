@@ -50,7 +50,7 @@ public class CustomerEntity
         IEnumerable<PhoneNumberEntity>? phoneNumbers)
     {
         UserOwnerId = userOwnerId;
-        CustomerType = customerType.Trim();
+        CustomerType = customerType.Trim() == "Empty" ? "" : customerType.Trim();
         CompanyName = companyName?.Trim();
         UseCompanyName = useCompanyName;
         Title = title?.Trim();
@@ -64,10 +64,21 @@ public class CustomerEntity
         Reference = referenceId != null && referenceType != null
             ? new ReferenceInfoEntity(referenceId.Value, referenceType.Value)
             : null;
-        Emails = emails?.Select(e => new EmailEntity(e.Email.Trim(), e.EmailType.Trim(), e.ReceiveNotifications))
+
+        // Process Emails
+        var emailList = emails?
+            .Where(e => !string.IsNullOrWhiteSpace(e.Email))
+            .Select(e => new EmailEntity(e.Email.Trim(), e.EmailType.Trim(), e.ReceiveNotifications))
             .ToList();
-        PhoneNumbers = phoneNumbers?.Select(p =>
-            new PhoneNumberEntity(p.PhoneNumber.Trim(), p.PhoneNumberType.Trim(), p.ReceiveNotifications)).ToList();
+        Emails = emailList != null && emailList.Any() ? emailList : null;
+
+        // Process PhoneNumbers
+        var phoneNumberList = phoneNumbers?
+            .Where(p => !string.IsNullOrWhiteSpace(p.PhoneNumber))
+            .Select(p => new PhoneNumberEntity(p.PhoneNumber.Trim(), p.PhoneNumberType.Trim(), p.ReceiveNotifications))
+            .ToList();
+        PhoneNumbers = phoneNumberList != null && phoneNumberList.Any() ? phoneNumberList : null;
+
         Properties = new List<ObjectId>();
         Comments = new List<ObjectId>();
         FullName = $"{Title?.Trim()} {Name?.Trim()} {Surname?.Trim()}".Trim(); // This will trim the FullName as well

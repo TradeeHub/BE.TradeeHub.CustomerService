@@ -207,9 +207,7 @@ input AddNewCustomerRequestInput {
   useCompanyName: Boolean!
   emails: [EmailRequestInput!]
   phoneNumbers: [PhoneNumberRequestInput!]
-  property: CustomerPlaceRequestInput
-  isBillingAddress: Boolean!
-  billing: CustomerPlaceRequestInput
+  properties: [PropertyRequestInput!]
   tags: [String!]
   reference: LinkReferenceRequestInput
   comment: String
@@ -223,7 +221,7 @@ input AddNewExternalReferenceRequestInput {
   phoneNumber: PhoneNumberRequestInput
   email: EmailRequestInput
   url: String
-  place: CustomerPlaceRequestInput
+  place: PlaceRequestInput
   description: String
   compensation: CompensationDetailsRequestInput
 }
@@ -449,16 +447,6 @@ input CustomerEntitySort {
   archived: SortOperationKind
 }
 
-input CustomerPlaceRequestInput {
-  placeId: String!
-  address: String!
-  country: String!
-  countryCode: String!
-  callingCode: String!
-  location: LocationRequestInput!
-  viewport: ViewportRequestInput!
-}
-
 input EmailEntityFilter {
   AND: [EmailEntityFilter!]
   OR: [EmailEntityFilter!]
@@ -613,6 +601,22 @@ input PhoneNumberRequestInput {
   phoneNumberType: String!
   phoneNumber: String!
   receiveNotifications: Boolean!
+}
+
+input PlaceRequestInput {
+  placeId: String!
+  address: String!
+  country: String!
+  countryCode: String!
+  callingCode: String!
+  location: LocationRequestInput!
+  viewport: ViewportRequestInput!
+}
+
+input PropertyRequestInput {
+  property: PlaceRequestInput
+  isBillingAddress: Boolean!
+  billing: PlaceRequestInput
 }
 
 input ReferenceInfoEntityFilter {

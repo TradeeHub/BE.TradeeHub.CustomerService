@@ -11,7 +11,7 @@ public class AddNewExternalReferenceRequest
     public PhoneNumberRequest? PhoneNumber { get; set; }
     public EmailRequest? Email { get; set; }
     public string? Url { get; set; } = null!;
-    public CustomerPlaceRequest? Place { get; set; }
+    public PlaceRequest? Place { get; set; }
     public string? Description { get; set; } = null!;
     public CompensationDetailsRequest? Compensation  { get; set; }
 }

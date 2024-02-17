@@ -1,6 +1,6 @@
 ﻿namespace BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
 
-public class CustomerPlaceRequest
+public class PlaceRequest
 {
     public string PlaceId { get; set; }
     public string Address { get; set; }

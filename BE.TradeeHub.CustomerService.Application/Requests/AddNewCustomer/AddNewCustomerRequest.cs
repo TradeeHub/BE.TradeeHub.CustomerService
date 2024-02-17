@@ -13,9 +13,7 @@ public class AddNewCustomerRequest
     public bool UseCompanyName { get; set; }
     public List<EmailRequest>? Emails { get; set; }
     public List<PhoneNumberRequest>? PhoneNumbers { get; set; }
-    public CustomerPlaceRequest? Property { get; set; }
-    public bool IsBillingAddress { get; set; }
-    public CustomerPlaceRequest? Billing{ get; set; }
+    public List<PropertyRequest>? Properties { get; set; }
     public List<string>? Tags { get; set; }
     public LinkReferenceRequest? Reference { get; set; }
     public string? Comment { get; set; }

@@ -36,19 +36,29 @@ public static class AddNewCustomerRequestExtensions
         return customerEntity;
     }
 
-    public static PropertyEntity? ToPropertyEntity(this AddNewCustomerRequest request, Guid userOwnerId, Guid createdBy)
+    public static List<PropertyEntity> ToPropertyEntities(this AddNewCustomerRequest request, Guid userOwnerId, Guid createdBy)
     {
-        if (request.Property == null) return null;
+        var propertyEntities = new List<PropertyEntity>();
 
-        var propertyEntity = new PropertyEntity(
-            userOwnerId: userOwnerId,
-            property: request.Property.ToPlaceEntity(),
-            billing: request.Billing?.ToPlaceEntity(),
-            createdBy: createdBy,
-            request.IsBillingAddress
-        );
+        // Check if the Properties list is not null or empty
+        if (request.Properties == null || request.Properties.Count == 0) return propertyEntities;
 
-        return propertyEntity;
+        foreach (var propertyRequest in request.Properties)
+        {
+            if (propertyRequest?.Property == null) continue; // Skip if Property is null
+
+            var propertyEntity = new PropertyEntity(
+                userOwnerId: userOwnerId,
+                property: propertyRequest.Property.ToPlaceEntity(),
+                billing: propertyRequest.Billing?.ToPlaceEntity(),
+                createdBy: createdBy,
+                isBillingAddress: propertyRequest.IsBillingAddress
+            );
+
+            propertyEntities.Add(propertyEntity);
+        }
+
+        return propertyEntities;
     }
 
     public static CommentEntity? ToCommentEntity(this AddNewCustomerRequest request, Guid userOwnerId, Guid createdBy)
@@ -60,7 +70,7 @@ public static class AddNewCustomerRequestExtensions
         return commentEntity;
     }
 
-    private static PlaceEntity ToPlaceEntity(this CustomerPlaceRequest request)
+    private static PlaceEntity ToPlaceEntity(this PlaceRequest request)
     {
         // Validation or defaulting logic could be added here if necessary
 

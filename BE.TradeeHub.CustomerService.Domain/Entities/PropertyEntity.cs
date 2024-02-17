@@ -31,8 +31,7 @@ public class PropertyEntity
     {
         UserOwnerId = userOwnerId;
         Property = property;
-        Billing = billing;
-        Billing = isBillingAddress && billing == null ? property : null;
+        Billing = isBillingAddress && billing == null ? property : billing;
         Customers = [];
         Quotes = [];
         Jobs = [];

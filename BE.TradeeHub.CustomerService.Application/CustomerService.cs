@@ -27,16 +27,14 @@ public class CustomerService : ICustomerService
         CancellationToken ctx)
     {
         var customerEntity = request.ToCustomerEntity(userContext.UserId, userContext.UserId);
-        var propertyEntity = request.ToPropertyEntity(userContext.UserId, userContext.UserId);
+        var propertyEntities = request.ToPropertyEntities(userContext.UserId, userContext.UserId);
         var commentEntity = request.ToCommentEntity(userContext.UserId, userContext.UserId);
 
-        // Initialize lists, adding entities if they are not null
-        var properties = propertyEntity != null ? [propertyEntity] : new List<PropertyEntity>();
         var comments = commentEntity != null ? [commentEntity] : new List<CommentEntity>();
 
         // Pass the entities to the repository method, which now receives empty lists if entities are null
         var (id, customerReferenceNumber) =
-            await _customerRepository.AddNewCustomerAsync(customerEntity, properties, comments, ctx);
+            await _customerRepository.AddNewCustomerAsync(customerEntity, propertyEntities, comments, ctx);
 
         return new AddNewCustomerResponse
         {

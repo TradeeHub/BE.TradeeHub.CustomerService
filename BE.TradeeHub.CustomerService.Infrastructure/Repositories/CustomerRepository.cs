@@ -32,7 +32,7 @@ public class CustomerRepository : ICustomerRepository
         var customer = await _dbContext.Customers.Find(filter).FirstOrDefaultAsync(ctx);
         return customer;
     }
-    
+
     public async Task<IEnumerable<CustomerEntity>> GetAllCustomersAsync()
     {
         return await _dbContext.Customers.Find(_ => true).ToListAsync();
@@ -187,38 +187,54 @@ public class CustomerRepository : ICustomerRepository
         {
             var objectIdLastCursor = string.IsNullOrEmpty(lastCursor) ? (ObjectId?)null : new ObjectId(lastCursor);
 
-            // Search Filter Stage
-            var matchStage = new BsonDocument("$match", new BsonDocument("$and", new BsonArray
+            // Define the lookup stage to join with the Properties collection
+            var lookupStage = new BsonDocument("$lookup", new BsonDocument
+            {
+                { "from", "Properties" },
+                { "localField", "Properties" },
+                { "foreignField", "_id" },
+                { "as", "PropertyDetails" }
+            });
+
+            // Define the match stage with extended search criteria including property details
+            var matchCriteria = new BsonDocument("$and", new BsonArray
             {
                 new BsonDocument("UserOwnerId", userId),
                 new BsonDocument("$or", new BsonArray
                 {
-                    new BsonDocument("CustomerReferenceNumber", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
-                    new BsonDocument("FullName", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
-                    new BsonDocument("Emails.Email", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
-                    new BsonDocument("PhoneNumbers.PhoneNumber", new BsonRegularExpression(Regex.Escape(searchTerm), "i")),
-                    new BsonDocument("CompanyName", new BsonRegularExpression(Regex.Escape(searchTerm), "i"))
-
+                    new BsonDocument("CustomerReferenceNumber", new BsonRegularExpression(searchTerm, "i")),
+                    new BsonDocument("FullName", new BsonRegularExpression(searchTerm, "i")),
+                    new BsonDocument("Emails.Email", new BsonRegularExpression(searchTerm, "i")),
+                    new BsonDocument("PhoneNumbers.PhoneNumber", new BsonRegularExpression(searchTerm, "i")),
+                    new BsonDocument("PropertyDetails.Property.Address", new BsonRegularExpression(searchTerm, "i"))
                 })
-            }));
+            });
 
+            // Apply cursor-based pagination for properties
             if (objectIdLastCursor != null)
             {
-                matchStage["$match"]["$and"].AsBsonArray
+                matchCriteria["$and"].AsBsonArray
                     .Add(new BsonDocument("_id", new BsonDocument("$gt", objectIdLastCursor)));
             }
 
+            var matchStage = new BsonDocument("$match", matchCriteria);
+
+            // Project stage to exclude PropertyDetails from the output if not needed
+            var projectStage = new BsonDocument("$project", new BsonDocument("PropertyDetails", 0));
+
             var pipeline = new[]
             {
+                lookupStage,
                 matchStage,
-                new BsonDocument("$sort", new BsonDocument("_id", 1)), // Ascending, good for cursors
-                new BsonDocument("$limit", pageSize + 1)
+                projectStage, // Include this stage if you want to exclude property details from final output
+                new BsonDocument("$sort", new BsonDocument("_id", 1)), // Sort by ID for pagination
+                new BsonDocument("$limit", pageSize + 1) // Fetch one extra record to check for next page
             };
 
             var customers = await _dbContext.Customers.Aggregate<CustomerEntity>(pipeline, cancellationToken: ctx)
                 .ToListAsync(ctx);
 
-            // Pagination Logic
+            // Pagination logic
             var hasNextPage = customers.Count > pageSize;
             var returnedCustomers = hasNextPage ? customers.Take(pageSize).ToList() : customers;
             var nextCursor = hasNextPage ? returnedCustomers.Last().Id.ToString() : null;
@@ -232,6 +248,7 @@ public class CustomerRepository : ICustomerRepository
         }
         catch (Exception ex)
         {
+            // Consider logging the exception
             return new CustomerPageResult
             {
                 Customers = new List<CustomerEntity>(),

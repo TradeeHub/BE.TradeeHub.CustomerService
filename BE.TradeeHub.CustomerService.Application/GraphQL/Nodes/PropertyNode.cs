@@ -34,4 +34,27 @@ public static class PropertyNode
 
         return propertyList.ToLookup(property => property.Id);
     }
+    
+    /// <summary>
+    /// Many To Many relationship between Customer and Property user for customers for grid 
+    /// </summary>
+    /// <param name="customerIds"></param>
+    /// <param name="properties"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [DataLoader]
+    internal static async Task<ILookup<ObjectId, PropertyEntity>> GetPropertyGroupedByCustomerIdAsync(
+        IReadOnlyList<ObjectId> customerIds,
+        IMongoCollection<PropertyEntity> properties,
+        CancellationToken cancellationToken)
+    {
+        var filter = Builders<PropertyEntity>.Filter.AnyIn(m => m.CustomerIds, customerIds);
+        var propertyList = await properties.Find(filter).ToListAsync(cancellationToken);
+
+        return customerIds
+            .SelectMany(customerId => 
+                propertyList.Where(p => p.CustomerIds.Contains(customerId))
+                    .Select(p => new { CustomerId = customerId, Property = p }))
+            .ToLookup(x => x.CustomerId, x => x.Property);
+    }
 }

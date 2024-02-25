@@ -2,7 +2,7 @@
 
 public interface IEmailRequest
 {
-    public string EmailType { get; set; }
-    public string Email { get; set; }
-    public bool ReceiveNotifications { get; set; }
+    public string EmailType { get; }
+    public string Email { get; }
+    public bool ReceiveNotifications { get; }
 }

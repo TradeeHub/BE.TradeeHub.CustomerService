@@ -2,7 +2,7 @@
 
 public interface IPhoneNumberRequest
 {
-    public string PhoneNumberType { get; set; }
-    public string PhoneNumber { get; set; }
-    public bool ReceiveNotifications { get; set; }
+    public string PhoneNumberType { get; }
+    public string PhoneNumber { get; }
+    public bool ReceiveNotifications { get; }
 }

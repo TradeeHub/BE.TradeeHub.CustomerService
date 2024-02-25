@@ -28,10 +28,13 @@ public class CustomerService : ICustomerService
         CancellationToken ctx)
     {
         var customerEntity = new CustomerEntity(request, userContext);
-                
-        var propertyEntities = request.Properties?.Select(p => new PropertyEntity(p, userContext)).ToList() ?? [];
 
-        var commentEntity = !string.IsNullOrEmpty(request.Comment) ? new CommentEntity(request.Comment,  userContext) : null;
+        var propertyEntities = request.Properties?.Where(x => x.Property != null)
+            .Select(p => new PropertyEntity(p, userContext)).ToList() ?? [];
+
+        var commentEntity = !string.IsNullOrEmpty(request.Comment)
+            ? new CommentEntity(request.Comment, userContext)
+            : null;
 
         var comments = commentEntity != null ? [commentEntity] : new List<CommentEntity>();
 

@@ -9,16 +9,11 @@ namespace BE.TradeeHub.CustomerService.Application.GraphQL.Nodes;
 public static class CustomerNode
 {
     public static async Task<List<PropertyEntity>> GetProperties([Parent] CustomerEntity customer,
-        IPropertyGroupedByIdDataLoader propertyGroupedByIdDataLoader, CancellationToken ctx)
+        IPropertyGroupedByCustomerIdDataLoader propertyGroupedByIdDataLoader, CancellationToken ctx)
     {
-        if (customer.PropertyIds == null || customer.PropertyIds.Count == 0)
-        {
-            return [];
-        }
+        var propertyGroups = await propertyGroupedByIdDataLoader.LoadAsync(customer.Id, ctx);
 
-        var propertyGroups = await propertyGroupedByIdDataLoader.LoadAsync(customer.PropertyIds, ctx);
-
-        var properties = propertyGroups.SelectMany(group => group).ToList();
+        var properties = propertyGroups.Select(group => group).ToList();
 
         return properties;
     }

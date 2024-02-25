@@ -31,7 +31,7 @@ public static class Query
 
             return executableQuery;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new Exception("Error while fetching customers", e);
         }
@@ -58,7 +58,7 @@ public static class Query
 
         return query;
     }
-    
+
     [Authorize]
     [UseFirstOrDefault]
     public static async Task<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
@@ -77,7 +77,7 @@ public static class Query
     {
         return await customerService.SearchForPotentialReferencesAsync(request, userContext.UserId, ctx);
     }
-    
+
     [Authorize]
     [NodeResolver]
     public static async Task<PropertyEntity?> GetProperty([Service] IMongoCollection<PropertyEntity?> collection,
@@ -91,17 +91,27 @@ public static class Query
     public static async Task<CustomerEntity?> GetCustomer([Service] IMongoCollection<CustomerEntity?> collection,
         [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
     {
-        return await EntityFetcher.GetEntityByIdAndOwnerId(collection, id, userContext.UserId, ctx);
+        try
+        {
+            var data = await EntityFetcher.GetEntityByIdAndOwnerId(collection, id, userContext.UserId, ctx);
+            return data;
+        }
+        catch (Exception e)
+        {
+            var temp = e.Message;
+            throw;
+        }
     }
-    
+
     [Authorize]
     [NodeResolver]
-    public static async Task<ExternalReferenceEntity?> GetExternalReference([Service] IMongoCollection<ExternalReferenceEntity?> collection,
+    public static async Task<ExternalReferenceEntity?> GetExternalReference(
+        [Service] IMongoCollection<ExternalReferenceEntity?> collection,
         [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
     {
         return await EntityFetcher.GetEntityByIdAndOwnerId(collection, id, userContext.UserId, ctx);
     }
-    
+
     [Authorize]
     [NodeResolver]
     public static async Task<CommentEntity?> GetComment([Service] IMongoCollection<CommentEntity?> collection,

@@ -4,7 +4,7 @@ namespace BE.TradeeHub.CustomerService.Domain.Interfaces.Requests;
 
 public interface IPropertyRequest
 {
-    public PlaceRequest Property { get; set; }
-    public bool IsBillingAddress { get; set; }
-    public PlaceRequest? Billing{ get; set; }
+    public PlaceRequest Property { get; }
+    public bool IsBillingAddress { get; }
+    public PlaceRequest? Billing{ get; }
 }

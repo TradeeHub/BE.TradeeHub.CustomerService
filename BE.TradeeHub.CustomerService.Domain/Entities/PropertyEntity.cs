@@ -22,9 +22,8 @@ public class PropertyEntity : AuditableEntity, IOwnedEntity
     {
         UserOwnerId = userContext.UserId;
         Property = new PlaceRequestEntity(addRequest.Property);
-        Billing = addRequest is { IsBillingAddress: true, Billing: null }
-            ?
-            new PlaceRequestEntity(addRequest.Property)
+        Billing = addRequest is { IsBillingAddress: true, Property: not null , Billing: null }
+            ? new PlaceRequestEntity(addRequest.Property)
             : addRequest.Billing != null
                 ? new PlaceRequestEntity(addRequest.Billing)
                 : null;

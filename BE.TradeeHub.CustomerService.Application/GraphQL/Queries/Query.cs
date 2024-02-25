@@ -12,14 +12,14 @@ using MongoDB.Driver;
 namespace BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
 
 [QueryType]
-public class Query
+public static class Query
 {
     [Authorize]
     [UsePaging(MaxPageSize = 1000)]
     [UseProjection]
     [HotChocolate.Types.UseSorting]
     [HotChocolate.Types.UseFiltering]
-    public IExecutable<CustomerEntity> GetCustomers([Service] IMongoCollection<CustomerEntity> collection,
+    public static IExecutable<CustomerEntity> GetCustomers([Service] IMongoCollection<CustomerEntity> collection,
         [Service] UserContext userContext, CancellationToken cancellationToken)
     {
         try
@@ -51,7 +51,7 @@ public class Query
 
     [Authorize]
     [UseFirstOrDefault]
-    public IExecutable<CustomerEntity> GetCustomerById([Service] IMongoCollection<CustomerEntity> collection,
+    public static IExecutable<CustomerEntity> GetCustomerById([Service] IMongoCollection<CustomerEntity> collection,
         [Service] UserContext userContext, ObjectId id, CancellationToken cancellationToken)
     {
         var query = collection.Find(x => x.Id == id && x.UserOwnerId == userContext.UserId).AsExecutable();
@@ -61,7 +61,7 @@ public class Query
     
     [Authorize]
     [UseFirstOrDefault]
-    public async Task<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
+    public static async Task<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
         [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
     {
         var idFilter = Builders<PropertyEntity>.Filter.Eq(x => x.Id, id);
@@ -71,7 +71,7 @@ public class Query
     }
 
     [Authorize]
-    public async Task<ReferenceTrackingResponse> SearchCustomerReferencesAsync(
+    public static async Task<ReferenceTrackingResponse> SearchCustomerReferencesAsync(
         [Service] ICustomerService customerService, [Service] UserContext userContext, SearchReferenceRequest request,
         CancellationToken ctx)
     {

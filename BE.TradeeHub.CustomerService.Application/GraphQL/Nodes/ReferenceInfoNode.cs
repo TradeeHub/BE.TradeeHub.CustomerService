@@ -5,7 +5,7 @@ using MongoDB.Bson;
 namespace BE.TradeeHub.CustomerService.Application.GraphQL.Nodes;
 
 [ExtendObjectType(typeof(ReferenceInfoEntity))]
-public class ReferenceInfoNode
+public static class ReferenceInfoNode
 {
     public static async Task<CustomerEntity?> GetCustomer([Parent] ReferenceInfoEntity referenceInfo,
         ICustomerGroupedByIdDataLoader customerGroupedByIdDataLoader, CancellationToken ctx)

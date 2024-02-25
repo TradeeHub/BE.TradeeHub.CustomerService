@@ -31,6 +31,12 @@ type CommentEntity implements Node {
   customer: CustomerEntity
 }
 
+type CompensationDetailsEntity {
+  compensationType: CompensationType!
+  amount: Decimal!
+  currency: String
+}
+
 type CustomerEntity implements Node {
   owner: UserEntity!
   creator: UserEntity!
@@ -85,6 +91,22 @@ type EmailEntity {
   emailType: String!
   email: String!
   receiveNotifications: Boolean!
+}
+
+type ExternalReferenceEntity implements Node {
+  owner: UserEntity!
+  id: ID!
+  userOwnerId: UUID!
+  referenceType: String!
+  name: String!
+  useCompanyName: Boolean!
+  companyName: String
+  phoneNumber: PhoneNumberEntity
+  email: EmailEntity
+  url: String
+  place: PlaceRequestEntity
+  description: String
+  compensation: CompensationDetailsEntity
 }
 
 type LocationRequest {
@@ -158,6 +180,8 @@ type ReferenceInfoEntity {
   customerId: ID
   externalReferenceId: ID
   referenceType: ReferenceType!
+  customer: CustomerEntity
+  externalReference: ExternalReferenceEntity
 }
 
 type ReferenceResponse {

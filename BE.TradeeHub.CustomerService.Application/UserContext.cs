@@ -1,8 +1,9 @@
 ﻿using System.Security.Claims;
+using BE.TradeeHub.CustomerService.Domain.Interfaces;
 
 namespace BE.TradeeHub.CustomerService.Application;
 
-public class UserContext
+public class UserContext : IUserContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 

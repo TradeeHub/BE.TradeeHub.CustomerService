@@ -1,20 +1,18 @@
 ﻿using BE.TradeeHub.CustomerService.Domain.Enums;
+using BE.TradeeHub.CustomerService.Domain.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-public class CommentEntity
+public class CommentEntity : AuditableEntity, IOwnedEntity
 {
     [BsonId]
     public ObjectId Id { get; set; }
     public ObjectId CustomerId { get; set; }
-    public Guid UserOwnerId { get; set; }
-    public Guid CreatedById { get; set; }
-    public DateTime CreatedAt { get; set; }
     public bool Archived {get; set; }
     public string? Comment { get; set; }
-    public List<string> UploadUrls { get; set; }
+    public List<UploadEntity>? Uploads { get; set; }
     [BsonRepresentation(BsonType.String)]
     public CommentType CommentType { get; set; }
 
@@ -22,14 +20,14 @@ public class CommentEntity
     {
         
     }
-    public CommentEntity(Guid userOwnerId, string comment, Guid createdBy)
+    public CommentEntity(string comment, IUserContext  userContext)
     {
-        UserOwnerId = userOwnerId;
+        UserOwnerId = userContext.UserId;
         Comment = comment.Trim();
         CreatedAt = DateTime.UtcNow;
-        CreatedById = createdBy;
+        CreatedById = userContext.UserId;
         CommentType = CommentType.General;
-        UploadUrls = [];
+        Uploads = new List<UploadEntity>();
         Archived = false;
     }
 }

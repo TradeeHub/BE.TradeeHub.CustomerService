@@ -1,11 +1,12 @@
 using BE.TradeeHub.CustomerService.Application.Interfaces;
-using BE.TradeeHub.CustomerService.Application.Mappings;
-using BE.TradeeHub.CustomerService.Application.Requests;
-using BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
 using BE.TradeeHub.CustomerService.Application.Responses;
 using BE.TradeeHub.CustomerService.Domain.Entities;
+using BE.TradeeHub.CustomerService.Domain.Entities.Reference;
 using BE.TradeeHub.CustomerService.Domain.Enums;
+using BE.TradeeHub.CustomerService.Domain.Interfaces;
 using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
+using BE.TradeeHub.CustomerService.Domain.Requests;
+using BE.TradeeHub.CustomerService.Domain.Requests.AddNewCustomer;
 using MongoDB.Bson;
 
 namespace BE.TradeeHub.CustomerService.Application;
@@ -22,13 +23,15 @@ public class CustomerService : ICustomerService
         _customerRepository = customerRepository;
     }
 
-    public async Task<CustomerEntity> AddNewCustomerAsync(UserContext userContext,
+    public async Task<CustomerEntity> AddNewCustomerAsync(IUserContext userContext,
         AddNewCustomerRequest request,
         CancellationToken ctx)
     {
-        var customerEntity = request.ToCustomerEntity(userContext.UserId, userContext.UserId);
-        var propertyEntities = request.ToPropertyEntities(userContext.UserId, userContext.UserId);
-        var commentEntity = request.ToCommentEntity(userContext.UserId, userContext.UserId);
+        var customerEntity = new CustomerEntity(request, userContext);
+                
+        var propertyEntities = request.Properties?.Select(p => new PropertyEntity(p, userContext)).ToList() ?? [];
+
+        var commentEntity = !string.IsNullOrEmpty(request.Comment) ? new CommentEntity(request.Comment,  userContext) : null;
 
         var comments = commentEntity != null ? [commentEntity] : new List<CommentEntity>();
 
@@ -97,10 +100,10 @@ public class CustomerService : ICustomerService
         return response;
     }
 
-    public async Task<AddNewExternalReferenceResponse> AddNewExternalReferenceAsync(UserContext userContext,
+    public async Task<AddNewExternalReferenceResponse> AddNewExternalReferenceAsync(IUserContext userContext,
         AddNewExternalReferenceRequest request, CancellationToken ctx)
     {
-        var externalReferenceEntity = request.ToExternalReferenceEntity(userContext.UserId);
+        var externalReferenceEntity = new ExternalReferenceEntity(request, userContext.UserId);
 
         var (id, name) = await _externalReferenceRepository.AddNewExternalReferenceAsync(externalReferenceEntity, ctx);
 

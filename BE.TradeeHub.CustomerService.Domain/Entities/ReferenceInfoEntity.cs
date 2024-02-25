@@ -6,18 +6,19 @@ namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
 public class ReferenceInfoEntity
 {
-    public ObjectId? Customer { get; set; } // If the reference is another customer
-    public ObjectId? ExternalReference { get; set; } // If the reference is external
+    public ObjectId? CustomerId { get; set; } // If the reference is another customer
+    public ObjectId? ExternalReferenceId { get; set; } // If the reference is external
     [BsonRepresentation(BsonType.String)] 
     public ReferenceType ReferenceType { get; set; }
     
     public ReferenceInfoEntity()
     {
     }
+    
     public ReferenceInfoEntity(ObjectId referenceId, ReferenceType referenceType)
     {
-        Customer = referenceType == ReferenceType.Customer ? referenceId : null;
-        ExternalReference = referenceType == ReferenceType.External ? referenceId : null;
+        CustomerId = referenceType == ReferenceType.Customer ? referenceId : null;
+        ExternalReferenceId = referenceType == ReferenceType.External ? referenceId : null;
         ReferenceType = referenceType;
     }
 }

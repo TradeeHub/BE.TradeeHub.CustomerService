@@ -62,14 +62,14 @@ public abstract class FakeDataGenerator
         return crn;
     }
     
-    private static List<CommentEntity> GenerateFakeComments(Faker faker, int maxComments)
-    {
-        var commentFaker = new Faker<CommentEntity>()
-            .RuleFor(c => c.Comment, f => f.Lorem.Sentence())
-            .RuleFor(c => c.UploadUrls, f => f.Make(f.Random.Int(1, 5), () => f.Image.PicsumUrl()));
-
-        return commentFaker.Generate(faker.Random.Int(1, maxComments));
-    }
+    // private static List<CommentEntity> GenerateFakeComments(Faker faker, int maxComments)
+    // {
+    //     // var commentFaker = new Faker<CommentEntity>()
+    //     //     .RuleFor(c => c.Comment, f => f.Lorem.Sentence())
+    //     //     .RuleFor(c => c.UploadUrls, f => f.Make(f.Random.Int(1, 5), () => f.Image.PicsumUrl()));
+    //     //
+    //     // return commentFaker.Generate(faker.Random.Int(1, maxComments));
+    // }
     public static List<PropertyEntity> CreateFakeProperties(int quantity)
     {
         // // Faker for AddressDbObject

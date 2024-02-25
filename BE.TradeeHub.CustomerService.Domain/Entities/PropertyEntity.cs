@@ -1,41 +1,37 @@
-using BE.TradeeHub.CustomerService.Domain.SubgraphEntities;
-using HotChocolate.Types.Relay;
+using BE.TradeeHub.CustomerService.Domain.Interfaces;
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Requests;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-public class PropertyEntity
+public class PropertyEntity : AuditableEntity, IOwnedEntity
 {
-    [ID]
     [BsonId] public ObjectId Id { get; set; }
-    public Guid UserOwnerId { get; set; }
-    public PlaceEntity Property { get; set; } = null!;
-    public PlaceEntity? Billing { get; set; }
-    public List<ObjectId> Customers { get; set; } = null!;
-    public List<ObjectId>? Quotes { get; set; }
-    public List<ObjectId>? Jobs { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public Guid CreatedBy { get; set; }
-    public DateTime? ModifiedAt { get; set; }
-    public Guid? ModifiedBy { get; set; }
-    public UserEntity Owner() => new UserEntity { Id = UserOwnerId };
-    public UserEntity Creator () => new UserEntity { Id = CreatedBy };
-    public UserEntity? Modifier () => ModifiedBy.HasValue ? new UserEntity { Id = ModifiedBy.Value } : null;
-    
+    public PlaceRequestEntity Property { get; set; } = null!;
+    public PlaceRequestEntity? Billing { get; set; }
+    public List<ObjectId> CustomerIds { get; set; } = null!;
+    public List<ObjectId>? QuoteIds { get; set; }
+    public List<ObjectId>? JobIds { get; set; }
+
     public PropertyEntity()
     {
     }
-    
-    public PropertyEntity(Guid userOwnerId, PlaceEntity property, PlaceEntity? billing, Guid createdBy, bool isBillingAddress)
+
+    public PropertyEntity(IPropertyRequest addRequest, IUserContext userContext)
     {
-        UserOwnerId = userOwnerId;
-        Property = property;
-        Billing = isBillingAddress && billing == null ? property : billing;
-        Customers = [];
-        Quotes = [];
-        Jobs = [];
+        UserOwnerId = userContext.UserId;
+        Property = new PlaceRequestEntity(addRequest.Property);
+        Billing = addRequest is { IsBillingAddress: true, Billing: null }
+            ?
+            new PlaceRequestEntity(addRequest.Property)
+            : addRequest.Billing != null
+                ? new PlaceRequestEntity(addRequest.Billing)
+                : null;
+        CustomerIds = [];
+        QuoteIds = [];
+        JobIds = [];
         CreatedAt = DateTime.UtcNow;
-        CreatedBy = createdBy;
+        CreatedById = userContext.UserId;
     }
 }

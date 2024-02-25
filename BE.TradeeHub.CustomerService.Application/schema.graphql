@@ -13,31 +13,29 @@ type AddNewExternalReferenceResponse {
   name: String!
 }
 
-type CommentEntity {
-  id: ID!
-  customerId: ID!
-  userOwnerId: UUID!
-  createdById: UUID!
-  createdAt: DateTime!
-  archived: Boolean!
-  comment: String
-  uploadUrls: [String!]!
-  commentType: CommentType!
-}
-
-type CompensationDetailsEntity {
-  compensationType: CompensationType!
-  amount: Decimal!
-  currency: String
-}
-
-type CustomerEntity implements Node {
-  id: ID!
-  properties: [PropertyEntity]
-  comments: [CommentEntity]
+type CommentEntity implements Node {
   owner: UserEntity!
   creator: UserEntity!
   modifier: UserEntity
+  id: ID!
+  customerId: ID!
+  archived: Boolean!
+  comment: String
+  uploads: [UploadEntity!]
+  commentType: CommentType!
+  userOwnerId: UUID!
+  createdAt: DateTime!
+  createdById: UUID!
+  modifiedAt: DateTime
+  modifiedById: UUID
+  customer: CustomerEntity
+}
+
+type CustomerEntity implements Node {
+  owner: UserEntity!
+  creator: UserEntity!
+  modifier: UserEntity
+  id: ID!
   customerType: String!
   companyName: String
   useCompanyName: Boolean!
@@ -50,12 +48,19 @@ type CustomerEntity implements Node {
   status: CustomerStatus!
   emails: [EmailEntity!]
   phoneNumbers: [PhoneNumberEntity!]
+  propertyIds: [ID!]
   tags: [String!]
-  createdAt: DateTime!
-  modifiedAt: DateTime
   reference: ReferenceInfoEntity
   customerRating: Decimal
   archived: Boolean!
+  commentIds: [ID!]
+  userOwnerId: UUID!
+  createdAt: DateTime!
+  createdById: UUID!
+  modifiedAt: DateTime
+  modifiedById: UUID
+  properties: [PropertyEntity!]!
+  comments: [CommentEntity!]!
 }
 
 "A connection to a list of items."
@@ -82,22 +87,7 @@ type EmailEntity {
   receiveNotifications: Boolean!
 }
 
-type ExternalReferenceEntity {
-  id: ID!
-  userOwnerId: UUID!
-  referenceType: String!
-  name: String!
-  useCompanyName: Boolean!
-  companyName: String
-  phoneNumber: PhoneNumberEntity
-  email: EmailEntity
-  url: String
-  place: PlaceEntity
-  description: String
-  compensation: CompensationDetailsEntity
-}
-
-type LocationEntity {
+type LocationRequest {
   lat: Decimal!
   lng: Decimal!
 }
@@ -125,29 +115,32 @@ type PhoneNumberEntity {
   receiveNotifications: Boolean!
 }
 
-type PlaceEntity {
+type PlaceRequestEntity {
   placeId: String!
   address: String!
   country: String!
   countryCode: String!
   callingCode: String!
-  location: LocationEntity!
-  viewport: ViewportEntity!
+  location: LocationRequest!
+  viewport: ViewportRequest!
 }
 
-type PropertyEntity {
-  id: ID!
-  "The customers associated with this property."
-  customers: [CustomerEntity]
+type PropertyEntity implements Node {
   owner: UserEntity!
   creator: UserEntity!
   modifier: UserEntity
-  property: PlaceEntity!
-  billing: PlaceEntity
-  quotes: [ID!]
-  jobs: [ID!]
+  id: ID!
+  property: PlaceRequestEntity!
+  billing: PlaceRequestEntity
+  customerIds: [ID!]!
+  quoteIds: [ID!]
+  jobIds: [ID!]
+  userOwnerId: UUID!
   createdAt: DateTime!
+  createdById: UUID!
   modifiedAt: DateTime
+  modifiedById: UUID
+  customers: [CustomerEntity!]!
 }
 
 type Query {
@@ -157,14 +150,13 @@ type Query {
   nodes("The list of node IDs." ids: [ID!]!): [Node]!
   customers("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String order_by: CustomerEntitySort where: CustomerEntityFilter): CustomersConnection @authorize
   customerById(id: ID!): CustomerEntity @authorize
-  customer(id: ID!): CustomerEntity @authorize
   propertyById(id: ID!): PropertyEntity @authorize
   searchCustomerReferences(request: SearchReferenceRequestInput!): ReferenceTrackingResponse! @authorize
 }
 
 type ReferenceInfoEntity {
-  externalReference: ExternalReferenceEntity
-  customer: CustomerEntity
+  customerId: ID
+  externalReferenceId: ID
   referenceType: ReferenceType!
 }
 
@@ -183,13 +175,28 @@ type ReferenceTrackingResponse {
   externalNextCursor: String
 }
 
-type UserEntity {
+type UploadEntity {
+  creator: UserEntity!
+  modifier: UserEntity
+  url: String!
+  s3Key: String!
+  name: String!
+  byteSize: Long
+  contentType: String
+  description: String
+  createdAt: DateTime!
+  createdById: UUID!
+  modifiedAt: DateTime
+  modifiedById: UUID
+}
+
+type UserEntity implements Node {
   id: ID!
 }
 
-type ViewportEntity {
-  northeast: LocationEntity!
-  southwest: LocationEntity!
+type ViewportRequest {
+  northeast: LocationRequest!
+  southwest: LocationRequest!
 }
 
 input AddNewCustomerRequestInput {
@@ -230,18 +237,6 @@ input CompensationDetailsRequestInput {
 input CustomerEntityFilter {
   AND: [CustomerEntityFilter!]
   OR: [CustomerEntityFilter!]
-  userOwnerId: UUID
-  userOwnerId_not: UUID
-  userOwnerId_in: [UUID!]
-  userOwnerId_not_in: [UUID!]
-  userOwnerId_gt: UUID
-  userOwnerId_not_gt: UUID
-  userOwnerId_gte: UUID
-  userOwnerId_not_gte: UUID
-  userOwnerId_lt: UUID
-  userOwnerId_not_lt: UUID
-  userOwnerId_lte: UUID
-  userOwnerId_not_lte: UUID
   customerType: String
   customerType_not: String
   customerType_contains: String
@@ -344,62 +339,14 @@ input CustomerEntityFilter {
   phoneNumbers_none: PhoneNumberEntityFilter
   phoneNumbers_all: PhoneNumberEntityFilter
   phoneNumbers_any: Boolean
-  properties_some: ObjectIdFilter
-  properties_none: ObjectIdFilter
-  properties_all: ObjectIdFilter
-  properties_any: Boolean
+  propertyIds_some: ObjectIdFilter
+  propertyIds_none: ObjectIdFilter
+  propertyIds_all: ObjectIdFilter
+  propertyIds_any: Boolean
   tags_some: ISingleFilterOfStringFilter
   tags_none: ISingleFilterOfStringFilter
   tags_all: ISingleFilterOfStringFilter
   tags_any: Boolean
-  createdAt: DateTime
-  createdAt_not: DateTime
-  createdAt_in: [DateTime!]
-  createdAt_not_in: [DateTime!]
-  createdAt_gt: DateTime
-  createdAt_not_gt: DateTime
-  createdAt_gte: DateTime
-  createdAt_not_gte: DateTime
-  createdAt_lt: DateTime
-  createdAt_not_lt: DateTime
-  createdAt_lte: DateTime
-  createdAt_not_lte: DateTime
-  createdBy: UUID
-  createdBy_not: UUID
-  createdBy_in: [UUID!]
-  createdBy_not_in: [UUID!]
-  createdBy_gt: UUID
-  createdBy_not_gt: UUID
-  createdBy_gte: UUID
-  createdBy_not_gte: UUID
-  createdBy_lt: UUID
-  createdBy_not_lt: UUID
-  createdBy_lte: UUID
-  createdBy_not_lte: UUID
-  modifiedAt: DateTime
-  modifiedAt_not: DateTime
-  modifiedAt_in: [DateTime]
-  modifiedAt_not_in: [DateTime]
-  modifiedAt_gt: DateTime
-  modifiedAt_not_gt: DateTime
-  modifiedAt_gte: DateTime
-  modifiedAt_not_gte: DateTime
-  modifiedAt_lt: DateTime
-  modifiedAt_not_lt: DateTime
-  modifiedAt_lte: DateTime
-  modifiedAt_not_lte: DateTime
-  modifiedBy: UUID
-  modifiedBy_not: UUID
-  modifiedBy_in: [UUID]
-  modifiedBy_not_in: [UUID]
-  modifiedBy_gt: UUID
-  modifiedBy_not_gt: UUID
-  modifiedBy_gte: UUID
-  modifiedBy_not_gte: UUID
-  modifiedBy_lt: UUID
-  modifiedBy_not_lt: UUID
-  modifiedBy_lte: UUID
-  modifiedBy_not_lte: UUID
   reference: ReferenceInfoEntityFilter
   customerRating: Decimal
   customerRating_not: Decimal
@@ -415,14 +362,73 @@ input CustomerEntityFilter {
   customerRating_not_lte: Decimal
   archived: Boolean
   archived_not: Boolean
-  comments_some: ObjectIdFilter
-  comments_none: ObjectIdFilter
-  comments_all: ObjectIdFilter
-  comments_any: Boolean
+  commentIds_some: ObjectIdFilter
+  commentIds_none: ObjectIdFilter
+  commentIds_all: ObjectIdFilter
+  commentIds_any: Boolean
+  userOwnerId: UUID
+  userOwnerId_not: UUID
+  userOwnerId_in: [UUID!]
+  userOwnerId_not_in: [UUID!]
+  userOwnerId_gt: UUID
+  userOwnerId_not_gt: UUID
+  userOwnerId_gte: UUID
+  userOwnerId_not_gte: UUID
+  userOwnerId_lt: UUID
+  userOwnerId_not_lt: UUID
+  userOwnerId_lte: UUID
+  userOwnerId_not_lte: UUID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_gt: DateTime
+  createdAt_not_gt: DateTime
+  createdAt_gte: DateTime
+  createdAt_not_gte: DateTime
+  createdAt_lt: DateTime
+  createdAt_not_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_not_lte: DateTime
+  createdById: UUID
+  createdById_not: UUID
+  createdById_in: [UUID!]
+  createdById_not_in: [UUID!]
+  createdById_gt: UUID
+  createdById_not_gt: UUID
+  createdById_gte: UUID
+  createdById_not_gte: UUID
+  createdById_lt: UUID
+  createdById_not_lt: UUID
+  createdById_lte: UUID
+  createdById_not_lte: UUID
+  modifiedAt: DateTime
+  modifiedAt_not: DateTime
+  modifiedAt_in: [DateTime]
+  modifiedAt_not_in: [DateTime]
+  modifiedAt_gt: DateTime
+  modifiedAt_not_gt: DateTime
+  modifiedAt_gte: DateTime
+  modifiedAt_not_gte: DateTime
+  modifiedAt_lt: DateTime
+  modifiedAt_not_lt: DateTime
+  modifiedAt_lte: DateTime
+  modifiedAt_not_lte: DateTime
+  modifiedById: UUID
+  modifiedById_not: UUID
+  modifiedById_in: [UUID]
+  modifiedById_not_in: [UUID]
+  modifiedById_gt: UUID
+  modifiedById_not_gt: UUID
+  modifiedById_gte: UUID
+  modifiedById_not_gte: UUID
+  modifiedById_lt: UUID
+  modifiedById_not_lt: UUID
+  modifiedById_lte: UUID
+  modifiedById_not_lte: UUID
 }
 
 input CustomerEntitySort {
-  userOwnerId: SortOperationKind
   customerType: SortOperationKind
   companyName: SortOperationKind
   useCompanyName: SortOperationKind
@@ -433,13 +439,14 @@ input CustomerEntitySort {
   fullName: SortOperationKind
   alias: SortOperationKind
   status: SortOperationKind
-  createdAt: SortOperationKind
-  createdBy: SortOperationKind
-  modifiedAt: SortOperationKind
-  modifiedBy: SortOperationKind
   reference: ReferenceInfoEntitySort
   customerRating: SortOperationKind
   archived: SortOperationKind
+  userOwnerId: SortOperationKind
+  createdAt: SortOperationKind
+  createdById: SortOperationKind
+  modifiedAt: SortOperationKind
+  modifiedById: SortOperationKind
 }
 
 input EmailEntityFilter {
@@ -706,7 +713,13 @@ scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time"
 "The built-in `Decimal` scalar type."
 scalar Decimal
 
+"The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1."
+scalar Long
+
 "The `Short` scalar type represents non-fractional signed whole 16-bit numeric values. Short can represent values between -(2^15) and 2^15 - 1."
 scalar Short
 
 scalar UUID @specifiedBy(url: "https:\/\/tools.ietf.org\/html\/rfc4122")
+
+"The `Upload` scalar type represents a file upload."
+scalar Upload

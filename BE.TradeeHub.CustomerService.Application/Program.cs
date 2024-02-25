@@ -1,21 +1,12 @@
 using BE.TradeeHub.CustomerService.Application;
-using BE.TradeeHub.CustomerService.Application.GraphQL.DataLoader;
-using BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
-using BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
-using BE.TradeeHub.CustomerService.Application.GraphQL.QueryResolvers;
-using BE.TradeeHub.CustomerService.Application.GraphQL.Types;
-using BE.TradeeHub.CustomerService.Application.GraphQL.Types.Subgraph;
+using BE.TradeeHub.CustomerService.Application.Extensions;
 using BE.TradeeHub.CustomerService.Application.Interfaces;
-using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Interfaces;
 using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
 using BE.TradeeHub.CustomerService.Infrastructure;
+using BE.TradeeHub.CustomerService.Infrastructure.Extensions;
 using BE.TradeeHub.CustomerService.Infrastructure.Repositories;
-using HotChocolate.Execution;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
-using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 var appSettings = new AppSettings(builder.Configuration);
@@ -24,89 +15,29 @@ builder.Services.AddSingleton<IAppSettings>(appSettings);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<UserContext>();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("GraphQLCorsPolicy", builder =>
-    {
-        builder.WithOrigins(appSettings.AllowedDomains) // Replace with the client's URL
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
-});
-
 builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddSingleton<IMongoDbContext, MongoDbContext>();
+builder.Services.AddMongoDbCollections();
+
 builder.Services.AddScoped<IExternalReferenceRepository, ExternalReferenceRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<TypeResolver>();
-builder.Services.AddScoped<CustomerPropertiesDataLoader>();
-builder.Services.AddScoped<CustomerCommentsDataLoader>();
 
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.Authority = appSettings.ValidIssuer;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidIssuer = appSettings.ValidIssuer,
-        ValidateLifetime = true,
-        ValidAudience = appSettings.AppClientId,
-        ValidateIssuerSigningKey = true,
-        ValidateAudience = true,
-    };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            if (context.Request.Cookies.ContainsKey("jwt"))
-            {
-                context.Token = context.Request.Cookies["jwt"];
-            }
-
-            return Task.CompletedTask;
-        }
-    };
-});
-
-builder.Services.AddSingleton<IMongoCollection<CustomerEntity>>(serviceProvider =>
-{
-    var mongoDbContext = serviceProvider.GetRequiredService<MongoDbContext>();
-    return mongoDbContext.Customers; // Assuming this is the property name in MongoDbContext for the collection
-});
-
-builder.Services.AddSingleton<IMongoCollection<PropertyEntity>>(serviceProvider =>
-{
-    var mongoDbContext = serviceProvider.GetRequiredService<MongoDbContext>();
-    return mongoDbContext.Properties; // Assuming this is the property name in MongoDbContext for the collection
-});
-
-builder.Services.AddAuthorization();
+builder.Services.AddAwsServices(builder.Configuration, appSettings);
+builder.Services.AddCors(appSettings).AddAuth(appSettings);
 
 builder.Services
     .AddGraphQLServer()
+    .InitializeOnStartup()
     .AddGlobalObjectIdentification()
     .AddAuthorization()
-    .AddDataLoader<CustomerPropertiesDataLoader>()
-    .AddDataLoader<CustomerCommentsDataLoader>()
+    .AddTypes()
     .BindRuntimeType<ObjectId, IdType>()
     .AddTypeConverter<ObjectId, string>(o => o.ToString())
     .AddTypeConverter<string, ObjectId>(o => ObjectId.Parse(o))
-    .AddQueryType<Query>()
-    .AddMutationType<Mutation>()
-    .AddType<CustomerType>()
-    .AddType<PropertyType>()
-    .AddType<CommentType>()
-    .AddType<UserType>()
-    .AddType<ReferenceInfoType>()
-    .AddType<ExternalReferenceType>()
+    .AddType<UploadType>()
     .AddMongoDbSorting()
     .AddMongoDbProjections()
     .AddMongoDbPagingProviders()
@@ -114,19 +45,10 @@ builder.Services
 
 var app = builder.Build();
 
-if (appSettings.Environment is "Development" or "Docker")
-{
-    var resolver = app.Services.GetService<IRequestExecutorResolver>();
-    var executor = resolver?.GetRequestExecutorAsync().Result;
-    if (executor != null)
-    {
-        const string schemaFile = "schema.graphql";
-        var newSchema = executor.Schema.ToString();
-        var oldSchema = File.ReadAllText(schemaFile);
-        if (newSchema != oldSchema)
-            File.WriteAllText(schemaFile, newSchema);
-    }
-}
+app.ExportGraphQlSchemaToFile();
+
+var dbContext = app.Services.GetRequiredService<IMongoDbContext>();
+dbContext.EnsureIndexesCreated();
 
 app.UseCors("GraphQLCorsPolicy"); // Apply the CORS policy
 app.UseAuthentication();

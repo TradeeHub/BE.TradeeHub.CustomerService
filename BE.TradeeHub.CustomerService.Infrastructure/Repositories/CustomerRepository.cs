@@ -40,7 +40,7 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task<IEnumerable<CustomerEntity>> GetCustomersByPropertyIdAsync(ObjectId propertyId)
     {
-        var filter = Builders<CustomerEntity>.Filter.AnyEq(c => c.Properties, propertyId);
+        var filter = Builders<CustomerEntity>.Filter.AnyEq(c => c.PropertyIds, propertyId);
         return await _dbContext.Customers.Find(filter).ToListAsync();
     }
 
@@ -60,7 +60,7 @@ public class CustomerRepository : ICustomerRepository
         var propertyIds = properties.Select(p => p.Id);
 
         // Find customers linked to these properties
-        var customerFilter = Builders<CustomerEntity>.Filter.AnyIn(c => c.Properties, propertyIds);
+        var customerFilter = Builders<CustomerEntity>.Filter.AnyIn(c => c.PropertyIds, propertyIds);
         return await _dbContext.Customers.Find(customerFilter).ToListAsync();
     }
 
@@ -90,8 +90,8 @@ public class CustomerRepository : ICustomerRepository
                 await GenerateUniqueCustomerReferenceNumber(customer.UserOwnerId, session, ctx);
 
             // Initialize Properties and Comments lists if necessary
-            customer.Properties = new List<ObjectId>();
-            customer.Comments = new List<ObjectId>();
+            customer.PropertyIds = new List<ObjectId>();
+            customer.CommentIds = new List<ObjectId>();
 
             // Add customer first to get its ID
             await _dbContext.Customers.InsertOneAsync(session, customer, cancellationToken: ctx);
@@ -101,11 +101,11 @@ public class CustomerRepository : ICustomerRepository
             {
                 foreach (var property in properties)
                 {
-                    property.Customers = [customer.Id];
+                    property.CustomerIds = [customer.Id];
                 }
 
                 await _dbContext.Properties.InsertManyAsync(session, properties, cancellationToken: ctx);
-                customer.Properties.AddRange(properties.Select(p => p.Id));
+                customer.PropertyIds.AddRange(properties.Select(p => p.Id));
             }
 
             // Handle Comments in a single operation if there are any, making sure to link them to the customer
@@ -117,15 +117,15 @@ public class CustomerRepository : ICustomerRepository
                 }
 
                 await _dbContext.Comments.InsertManyAsync(session, comments, cancellationToken: ctx);
-                customer.Comments.AddRange(comments.Select(c => c.Id));
+                customer.CommentIds.AddRange(comments.Select(c => c.Id));
             }
 
             // Update the customer with the new lists of property and comment IDs if any were added
-            if (customer.Properties?.Any() == true || customer.Comments?.Any() == true)
+            if (customer.PropertyIds?.Any() == true || customer.CommentIds?.Any() == true)
             {
                 var updateDefinition = Builders<CustomerEntity>.Update
-                    .Set(c => c.Properties, customer.Properties)
-                    .Set(c => c.Comments, customer.Comments);
+                    .Set(c => c.PropertyIds, customer.PropertyIds)
+                    .Set(c => c.CommentIds, customer.CommentIds);
                 await _dbContext.Customers.UpdateOneAsync(session, c => c.Id == customer.Id, updateDefinition,
                     cancellationToken: ctx);
             }

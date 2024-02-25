@@ -1,3 +1,5 @@
+    using BE.TradeeHub.CustomerService.Domain.Interfaces.Requests;
+
     namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
     public class EmailEntity
@@ -10,10 +12,10 @@
         {
         }
         
-        public EmailEntity(string email, string emailType, bool receiveNotifications)
+        public EmailEntity(IEmailRequest addEmailRequest)
         {
-            Email = email;
-            EmailType = emailType;
-            ReceiveNotifications = receiveNotifications;
+            Email = addEmailRequest.Email.Trim();
+            EmailType = addEmailRequest.EmailType.Trim();
+            ReceiveNotifications = addEmailRequest.ReceiveNotifications;
         }
     }

@@ -1,12 +1,13 @@
 using BE.TradeeHub.CustomerService.Application.Interfaces;
-using BE.TradeeHub.CustomerService.Application.Requests;
-using BE.TradeeHub.CustomerService.Application.Requests.AddNewCustomer;
 using BE.TradeeHub.CustomerService.Application.Responses;
 using BE.TradeeHub.CustomerService.Domain.Entities;
+using BE.TradeeHub.CustomerService.Domain.Requests;
+using BE.TradeeHub.CustomerService.Domain.Requests.AddNewCustomer;
 using HotChocolate.Authorization;
 
 namespace BE.TradeeHub.CustomerService.Application.GraphQL.Mutations;
 
+[MutationType]
 public class Mutation
 {
     [Authorize]

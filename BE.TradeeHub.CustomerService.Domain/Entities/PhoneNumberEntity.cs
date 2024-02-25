@@ -1,3 +1,5 @@
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Requests;
+
 namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
 public class PhoneNumberEntity
@@ -10,10 +12,10 @@ public class PhoneNumberEntity
     {
     }
     
-    public PhoneNumberEntity(string phoneNumber, string phoneNumberType, bool receiveNotifications)
+    public PhoneNumberEntity(IPhoneNumberRequest addPhoneNumberRequest)
     {
-        PhoneNumber = phoneNumber;
-        PhoneNumberType = phoneNumberType;
-        ReceiveNotifications = receiveNotifications;
+        PhoneNumber = addPhoneNumberRequest.PhoneNumber.Trim();
+        PhoneNumberType = addPhoneNumberRequest.PhoneNumberType.Trim();
+        ReceiveNotifications = addPhoneNumberRequest.ReceiveNotifications;
     }
 }

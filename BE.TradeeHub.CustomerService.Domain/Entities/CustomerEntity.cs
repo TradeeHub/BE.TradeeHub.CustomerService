@@ -1,17 +1,15 @@
 using BE.TradeeHub.CustomerService.Domain.Enums;
-using BE.TradeeHub.CustomerService.Domain.SubgraphEntities;
-using HotChocolate.Types.Relay;
+using BE.TradeeHub.CustomerService.Domain.Interfaces;
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Requests;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace BE.TradeeHub.CustomerService.Domain.Entities;
 
-public class CustomerEntity
+public class CustomerEntity : AuditableEntity, IOwnedEntity
 {
-    [ID]
     [BsonId] 
     public ObjectId Id { get; set; }
-    public Guid UserOwnerId { get; set; }
     public string CustomerType { get; set; } = null!;
     public string? CompanyName { get; set; }
     public bool UseCompanyName { get; set; }
@@ -25,62 +23,53 @@ public class CustomerEntity
     [BsonRepresentation(BsonType.String)] public CustomerStatus Status { get; set; }
     public List<EmailEntity>? Emails { get; set; }
     public List<PhoneNumberEntity>? PhoneNumbers { get; set; }
-    public List<ObjectId>? Properties { get; set; }
+    public List<ObjectId>? PropertyIds { get; set; }
     public HashSet<string>? Tags { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public Guid CreatedBy { get; set; }
-    public DateTime? ModifiedAt { get; set; }
-    public Guid? ModifiedBy { get; set; }
     public ReferenceInfoEntity? Reference { get; set; }
     public decimal? CustomerRating { get; set; }
     public bool Archived { get; set; }
-    public List<ObjectId>? Comments { get; set; }
-    public UserEntity Owner() => new UserEntity { Id = UserOwnerId };
-    public UserEntity Creator () => new UserEntity { Id = CreatedBy };
-    public UserEntity? Modifier () => ModifiedBy.HasValue ? new UserEntity { Id = ModifiedBy.Value } : null;
+    public List<ObjectId>? CommentIds { get; set; }
 
     public CustomerEntity()
     {
     }
     
-    public CustomerEntity(Guid userOwnerId, string? title, string? name, string? surname, string? alias,
-        string customerType, string? companyName, bool useCompanyName, ObjectId? referenceId,
-        ReferenceType? referenceType,
-        IEnumerable<string>? tags, Guid createdBy, IEnumerable<EmailEntity>? emails,
-        IEnumerable<PhoneNumberEntity>? phoneNumbers)
+    public CustomerEntity(IAddNewCustomerRequest addRequest, IUserContext userContext)
     {
-        UserOwnerId = userOwnerId;
-        CustomerType = customerType.Trim() == "Empty" ? "" : customerType.Trim();
-        CompanyName = companyName?.Trim();
-        UseCompanyName = useCompanyName;
-        Title = title?.Trim();
-        Name = name?.Trim();
-        Surname = surname?.Trim();
-        Alias = alias?.Trim();
+        UserOwnerId = userContext.UserId;
+        CustomerType = addRequest.CustomerType.Trim() == "Empty" ? "" : addRequest.CustomerType.Trim();
+        CompanyName = addRequest.CompanyName?.Trim();
+        UseCompanyName = addRequest.UseCompanyName;
+        Title = addRequest.Title?.Trim();
+        Name = addRequest.Name?.Trim();
+        Surname = addRequest.Surname?.Trim();
+        Alias = addRequest.Alias?.Trim();
         Status = CustomerStatus.Lead;
-        Tags = tags != null ? [..tags.Select(tag => tag.Trim())] : [];
+        Tags = addRequest.Tags != null ? [..addRequest.Tags.Select(tag => tag.Trim())] : [];
         CreatedAt = DateTime.UtcNow;
-        CreatedBy = createdBy;
-        Reference = referenceId != null && referenceType != null
-            ? new ReferenceInfoEntity(referenceId.Value, referenceType.Value)
+        CreatedById = userContext.UserId;
+        Reference = addRequest.Reference != null
+            ? new ReferenceInfoEntity(addRequest.Reference.Id, addRequest.Reference.ReferenceType)
             : null;
-
+        
         // Process Emails
-        var emailList = emails?
+        var emailList = addRequest.Emails?
             .Where(e => !string.IsNullOrWhiteSpace(e.Email))
-            .Select(e => new EmailEntity(e.Email.Trim(), e.EmailType.Trim(), e.ReceiveNotifications))
+            .Select(e => new EmailEntity(e))
             .ToList();
+        
         Emails = emailList != null && emailList.Any() ? emailList : null;
 
         // Process PhoneNumbers
-        var phoneNumberList = phoneNumbers?
+        var phoneNumberList = addRequest.PhoneNumbers?
             .Where(p => !string.IsNullOrWhiteSpace(p.PhoneNumber))
-            .Select(p => new PhoneNumberEntity(p.PhoneNumber.Trim(), p.PhoneNumberType.Trim(), p.ReceiveNotifications))
+            .Select(p => new PhoneNumberEntity(p))
             .ToList();
+        
         PhoneNumbers = phoneNumberList != null && phoneNumberList.Any() ? phoneNumberList : null;
 
-        Properties = new List<ObjectId>();
-        Comments = new List<ObjectId>();
+        PropertyIds = new List<ObjectId>();
+        CommentIds = new List<ObjectId>();
         FullName = $"{Title?.Trim()} {Name?.Trim()} {Surname?.Trim()}".Trim(); // This will trim the FullName as well
     }
 }

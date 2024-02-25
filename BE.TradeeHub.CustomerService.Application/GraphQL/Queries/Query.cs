@@ -1,7 +1,9 @@
+using BE.TradeeHub.CustomerService.Application.Extensions;
 using BE.TradeeHub.CustomerService.Application.Interfaces;
-using BE.TradeeHub.CustomerService.Application.Requests;
 using BE.TradeeHub.CustomerService.Application.Responses;
 using BE.TradeeHub.CustomerService.Domain.Entities;
+using BE.TradeeHub.CustomerService.Domain.Entities.Reference;
+using BE.TradeeHub.CustomerService.Domain.Requests;
 using HotChocolate.Authorization;
 using HotChocolate.Data;
 using MongoDB.Bson;
@@ -9,6 +11,7 @@ using MongoDB.Driver;
 
 namespace BE.TradeeHub.CustomerService.Application.GraphQL.Queries;
 
+[QueryType]
 public class Query
 {
     [Authorize]
@@ -55,18 +58,7 @@ public class Query
 
         return query;
     }
-
-    [Authorize]
-    [NodeResolver]
-    public async Task<CustomerEntity?> GetCustomer([Service] IMongoCollection<CustomerEntity> collection,
-        [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
-    {
-        var idFilter = Builders<CustomerEntity>.Filter.Eq(x => x.Id, id);
-        var ownerFilter = Builders<CustomerEntity>.Filter.Eq(x => x.UserOwnerId, userContext.UserId);
-        var combinedFilter = Builders<CustomerEntity>.Filter.And(ownerFilter, idFilter);
-        return await collection.Find(combinedFilter).FirstOrDefaultAsync(ctx);
-    }
-
+    
     [Authorize]
     [UseFirstOrDefault]
     public async Task<PropertyEntity> GetPropertyById([Service] IMongoCollection<PropertyEntity> collection,
@@ -84,5 +76,37 @@ public class Query
         CancellationToken ctx)
     {
         return await customerService.SearchForPotentialReferencesAsync(request, userContext.UserId, ctx);
+    }
+    
+    [Authorize]
+    [NodeResolver]
+    public static async Task<PropertyEntity?> GetProperty([Service] IMongoCollection<PropertyEntity?> collection,
+        [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
+    {
+        return await EntityFetcher.GetEntityByIdAndOwnerId(collection, id, userContext.UserId, ctx);
+    }
+
+    [Authorize]
+    [NodeResolver]
+    public static async Task<CustomerEntity?> GetCustomer([Service] IMongoCollection<CustomerEntity?> collection,
+        [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
+    {
+        return await EntityFetcher.GetEntityByIdAndOwnerId(collection, id, userContext.UserId, ctx);
+    }
+    
+    [Authorize]
+    [NodeResolver]
+    public static async Task<ExternalReferenceEntity?> GetExternalReference([Service] IMongoCollection<ExternalReferenceEntity?> collection,
+        [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
+    {
+        return await EntityFetcher.GetEntityByIdAndOwnerId(collection, id, userContext.UserId, ctx);
+    }
+    
+    [Authorize]
+    [NodeResolver]
+    public static async Task<CommentEntity?> GetComment([Service] IMongoCollection<CommentEntity?> collection,
+        [Service] UserContext userContext, ObjectId id, CancellationToken ctx)
+    {
+        return await EntityFetcher.GetEntityByIdAndOwnerId(collection, id, userContext.UserId, ctx);
     }
 }

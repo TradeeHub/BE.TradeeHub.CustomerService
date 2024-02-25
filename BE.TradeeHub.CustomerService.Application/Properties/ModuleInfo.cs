@@ -1,5 +1,4 @@
 [assembly: Module("Types")]
-[assembly: DataLoaderDefaults(
-    ServiceScope = DataLoaderServiceScope.DataLoaderScope,
-    AccessModifier = DataLoaderAccessModifier.Internal
-    )]
+[assembly:
+    DataLoaderDefaults(ServiceScope = DataLoaderServiceScope.DataLoaderScope,
+        AccessModifier = DataLoaderAccessModifier.PublicInterface)]

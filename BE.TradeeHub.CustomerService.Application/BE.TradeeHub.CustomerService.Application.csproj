@@ -9,14 +9,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.Core" Version="3.7.301.5" />
+        <PackageReference Include="AWSSDK.Core" Version="3.7.302.12" />
+        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.305.28" />
+        <PackageReference Include="HotChocolate.Analyzers" Version="13.9.0" />
         <PackageReference Include="HotChocolate.AspNetCore" Version="13.8.1" />
         <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="13.8.1" />
         <PackageReference Include="HotChocolate.Data.MongoDb" Version="13.8.1" />
+        <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.9.0" />
         <PackageReference Include="HotChocolate.Types.Filters" Version="13.8.1" />
         <PackageReference Include="HotChocolate.Types.Sorting" Version="13.8.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 

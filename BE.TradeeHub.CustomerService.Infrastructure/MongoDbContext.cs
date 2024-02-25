@@ -1,12 +1,13 @@
 using BE.TradeeHub.CustomerService.Domain.Entities;
 using BE.TradeeHub.CustomerService.Domain.Entities.Reference;
 using BE.TradeeHub.CustomerService.Domain.Interfaces;
+using BE.TradeeHub.CustomerService.Domain.Interfaces.Repositories;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BE.TradeeHub.CustomerService.Infrastructure;
 
-public class MongoDbContext
+public class MongoDbContext : IMongoDbContext
 {
     private readonly IMongoDatabase _database;
     private readonly MongoClient _client; // Store the MongoClient instance
